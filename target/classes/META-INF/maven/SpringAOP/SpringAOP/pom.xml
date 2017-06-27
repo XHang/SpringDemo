@@ -4,7 +4,7 @@
   <artifactId>SpringAOP</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>AOP示例程序</name>
-  <description>AOP示例程序</description>、
+  <description>AOP示例程序</description>
   <properties>
     		<java.version>1.8</java.version>
   </properties>
