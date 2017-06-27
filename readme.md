@@ -145,13 +145,18 @@ SpringBoot的黑魔法，用一个jar包运行web应用-----就是不用任何�
         <artifactId>spring-boot-devtools</artifactId>
         <optional>true</optional>
     </dependency>
-    它能帮你：禁用Spring Boots支持的几个缓冲库，避免开发出现缓冲问题
-    			自动重启，当你修改了类路径的任何一个文件就会触发，
-    			在生产模式会禁用这个开发工具。
-    			注意： 1. DevTools需要一个隔离的应用程序类加载器才能正常运行？
+    它能帮你：	1.禁用Spring Boots支持的几个缓冲库，避免开发出现缓冲问题
+    			2.自动重启，当你修改了类路径的任何一个文件就会触发，
+    			3.在生产模式会禁用这个开发工具。
+    			注意： 
+    			1. DevTools需要一个隔离的应用程序类加载器才能正常运行？
     			2.禁用了关闭挂钩（SpringApplication.setRegisterShutdownHook(false))无法正常启动DevTools
- 			   3.  
-		
+***
+第五部分，怎么利用boot搞一个拦截器
+------------------
+
+  1.  暂时不提配置，第一步，你应该知道吧，建立一个拦截器类，实现HandlerInterceptor 
+  2.
 	
 	
 	
