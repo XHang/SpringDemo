@@ -1,59 +1,39 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>SpringBootExample</groupId>
-  <artifactId>SpringBootExample</artifactId>
-  <packaging>jar</packaging>
+  <groupId>SpringDataSource</groupId>
+  <artifactId>SpringDataSource</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>SpringBootExample Maven Webapp</name>
-  <url>http://maven.apache.org</url>
-  <dependencyManagement>
-  	<dependencies>
-  	<dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.9</version>
-            <scope>import</scope>
-        </dependency>
-        
-        
-        <dependency>
-            <!-- Import dependency management from Spring Boot -->
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-dependencies</artifactId>
-            <version>1.4.7.RELEASE</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        <dependency>
-  			<groupId>com.h2database</groupId>
-  			<artifactId>h2</artifactId>
-  			<version>1.4.195</version>
-		</dependency>
-		
-
-
-
-    </dependencies>
-  </dependencyManagement>
+  <name>Spring的数据源使用</name>
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+		<dependency>
+		  <groupId>commons-dbcp</groupId>
+		  <artifactId>commons-dbcp</artifactId>
+		  <version>1.4</version>
+ </dependency>
+		<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-core</artifactId>
+ 		 <version>4.3.3.RELEASE</version>
+	</dependency>  	
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-context</artifactId>
+  		<version>4.3.3.release</version>
+	</dependency>	
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-beans</artifactId>
+  		<version>4.3.3.RELEASE</version>
+	</dependency>
+	<dependency>
+		<groupId>junit</groupId>
+	    <artifactId>junit</artifactId>
+	    <version>4.12</version>
+	</dependency>
+			<dependency>
+ 			 <groupId>mysql</groupId>
+  			<artifactId>mysql-connector-java</artifactId>
+  			<version>5.0.3</version>
+		</dependency>
   </dependencies>
-  <build>
-    <finalName>SpringBootExample</finalName>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
-    </plugins>
-  </build>
 </project>
