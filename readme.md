@@ -178,7 +178,7 @@ java类配置
 杂项
 ---------------------
 1.  自己启动Spring容器时，可以用ClassPathXmlApplicationContext接受一个@Configuration注解的类，来实例化里面的bean。
-	eg:
+	eg:    
 	` 
 	ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
     MyService myService = ctx.getBean(MyService.class);
