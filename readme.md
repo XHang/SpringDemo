@@ -1,5 +1,5 @@
-***
 SpringBoot环境搭建 
+===========
 1：新建一个Maven项目
 2：在pom文件的project标签下补上
 		<parent>
@@ -172,18 +172,34 @@ SpringBoot的黑魔法，用一个jar包运行web应用-----就是不用任何�
 java类配置
 ======
 1. 新建一个类作为Spring的把bean配置，别忘了加@Configure注解
-2. 搞一个方法，返回对象，方法上加上@Bean。这样的做法跟xml配置中的<bean></bean>是一样的。。。。id怎么确定？
+2. 搞一个方法，返回对象，方法上加上@Bean。这样的做法跟xml配置中的<bean></bean>是一样的，默认情况下，bean的名称和方法名一致
 	示例程序，注入一个restTemplate服务对象
+	只要打印对象非空及引用对象非空则说明没问题。
+	至于本对象的使用，参考分支项目。
+3. 如果是bean本身持有另一个bean的引用呢，怎么注入?  
+	这样的话，只要在创建bena的方法加上需要引用的bena的参数，然后在方法里面将它set进去即可。  
+	当然，引用的bean本身也需要创建一个方法来交于Spring管理  
+	另外，如果引用有两个bena存在的情况下，一般会根据参数名取bean。
 	
 杂项
 ---------------------
-1.  自己启动Spring容器时，可以用ClassPathXmlApplicationContext接受一个@Configuration注解的类，来实例化里面的bean。
+1.  自己启动Spring容器时，可以用AnnotationConfigApplicationContext接受一个@Configuration注解的类，来实例化里面的bean。
 	eg:    
 	<pre>
 	ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
-    MyService myService = ctx.getBean(MyService.class);
-    myService.doStuff();
+    MyBean bean = ctx.getBean(MyBean.class);
     </pre>
+    其实，就算不是@Configuration注解的类也没关系，只要这个类写了@Component or JSR-330 annotated注解都行的  
+    另外，AnnotationConfigApplicationContext类支持无参构造函数，只要在创建该对象后调用register传入配置类就行。  
+    2.在配置类加上@ComponentScan(basePackages = "com.acme")注解，等同于  
+ <pre>
+ 	<beans>
+    		<context:component-scan base-package="com.acme"/>
+	</beans>
+</pre>  
+注意啊，别启动扫描的时候把@Configuration类也扫进去。
+其实没意思，boot的@SpringBootApplication全搞定。你只要写@Configuration就行
+    
 						
 			
 	
