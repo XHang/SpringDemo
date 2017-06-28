@@ -156,10 +156,34 @@ SpringBoot的黑魔法，用一个jar包运行web应用-----就是不用任何�
 ------------------
 
   1.  暂时不提配置，第一步，你应该知道吧，建立一个拦截器类，实现HandlerInterceptor 
-  2.
+  2.  好了，建了一个标准的拦截处理器，怎么配置上去，这才是问题。
+  		其实说起来也简单，只要新建一个类去继承WebMvcConfigurerAdapter，就可以写进配置了。
+  3.  新建一个配置类，覆盖某个方法，写入自己的拦截器配置，然后呢？怎么使配置生效。
+  		简单，两步
+  		1. 配置类加上@Configure注解  		
+		2. 根类（boot主要运行的类），加上@SpringBootApplication注解   or   @CompScreen  or  @Import导入配置类
+		搞定
+		
+第六部分，怎么用boot来搞自动注入
+---------------------------------------------	
+话说，有些第三方类库可不允许你加@Component注解，怎么把它们产生的对象交由Spring来管理呢？
+两种方式，xml或者java类配置
+
+java类配置
+======
+1. 新建一个类作为Spring的把bean配置，别忘了加@Configure注解
+2. 搞一个方法，返回对象，方法上加上@Bean。这样的做法跟xml配置中的<bean></bean>是一样的。。。。id怎么确定？
+	示例程序，注入一个restTemplate服务对象
 	
-	
-	
+杂项
+---------------------
+1.  自己启动Spring容器时，可以用ClassPathXmlApplicationContext接受一个@Configuration注解的类，来实例化里面的bean。
+	eg:
+	` 
+	ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
+    MyService myService = ctx.getBean(MyService.class);
+    myService.doStuff();
+    `
 						
 			
 	
