@@ -87,4 +87,37 @@ public class AspectDemo {
         return request;
 	}
 	
+	
+	/**
+	 * 第六个示例程序。演示切面表达式中||的使用<br>
+	 * 以及简化切面表达式，用静态变量代替繁杂的表达式
+	 * 测试结果，成功
+	 * @param proceedingJoinPoint
+	 * @return
+	 * @throws Throwable 
+	 */
+	private static final String PREFIX="execution(public * com.springaop.service.";
+	private static final String SUFFIX=".*(..))";
+	@Around(PREFIX+"UserService"+SUFFIX+"||" +PREFIX+"CustomizeService"+SUFFIX)
+	public Object around2 (ProceedingJoinPoint proceedingJoinPoint) throws Throwable{
+		System.out.println("切面拦截前（userService类和Customize类）");
+		Object object = proceedingJoinPoint.proceed();
+		System.out.println("切面拦击后（userService类和Customize类）");
+		return object;
+	}
+	
+	
+	/**
+	 * 第七个切面程序。<br>
+	 * 日志记录辅助切面<br>\
+	 * 实现功能：堆栈跟踪。打印每一个方法传入的参数
+	 * @param proceedingJoinPoint
+	 * @return
+	 */
+	public Object around3 (ProceedingJoinPoint proceedingJoinPoint){
+		return null;
+	}
+	
+	
+	
 }
