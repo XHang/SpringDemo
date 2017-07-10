@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 将UserDAOMySQLimplement交于IOC容器管理，并注入两股真气（Map，Set），起名为userDao-->
+    <bean id="IOCExample" class="com.Spring.Example.IOCExample">
+    <!-- 注入属性时name要和属性名相同 -->
+    <!-- 注入map集合 -->
+    	<property name="map">
+       		 <map>
+            	<entry key="map_key1" value="map_value1"/>
+            	<entry key ="map_key2" value="map_key2"/>
+       		 </map>
+    	</property>
+    	<!-- 注入set集合 -->
+    	<property name="set">
+       		 <set>
+            	<value>set1</value>
+            	<value>set2</value>
+        	</set>
+    	</property>
+    	<!-- 注入list集合 -->
+    	<property name="list">
+        	<list>
+            	<value>1</value>
+            	<value>2</value>
+        	</list>
+    	</property>
+    	<!-- 注入list集合（存user对象） -->
+    	<property name="users">
+        	<list>
+            	<ref bean = "userByConstructor" />
+            	<ref bean = "userBySetGet" />
+        	</list>  
+    	</property>
+    </bean>
+    <!-- 构造器注入 -->
+    <bean id="userByConstructor" class="com.Spring.Model.User">
+    	 <constructor-arg name="username" value="张三" />
+    	  <constructor-arg name="password" value="123456" />
+    </bean>
+    <!-- set/get注入 -->
+     <bean id="userBySetGet" class="com.Spring.Model.User">
+    	 <property name="username"  value="李四"/>
+    	 <property name="password"  value="78901"/>
+    </bean>
+</beans>
