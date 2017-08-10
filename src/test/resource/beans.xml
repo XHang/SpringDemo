@@ -41,7 +41,7 @@
     	  <constructor-arg name="password" value="123456" />
     </bean>
     <!-- set/get注入 -->
-     <bean id="userBySetGet" class="com.Spring.Model.User">
+     <bean id="userBySetGet" class="com.Spring.Model.User" destroy-method="destory" init-method="init">
     	 <property name="username"  value="李四"/>
     	 <property name="password"  value="78901"/>
     </bean>

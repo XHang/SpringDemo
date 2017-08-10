@@ -13,7 +13,7 @@ public class TestIOCExample {
 	@Test
 	public void Test_add(){
 		
-		ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
 			
 		IOCExample bean = context.getBean("IOCExample", IOCExample.class);
 		System.out.println("取出Map集合对象");
@@ -32,6 +32,8 @@ public class TestIOCExample {
 		for(User user:bean.getUsers()){
 			System.out.println(user);
 		}
+		//消亡所有bean
+		context.destroy();
 	}
 
 }

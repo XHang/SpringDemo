@@ -29,6 +29,12 @@ public class User {
 	public String toString() {
 		return "User [username=" + username + ", password=" + password + "]";
 	}
+	public void destory(){
+		System.out.println("用户对象从Spring容器中狗带了，让我们为他默哀三分钟");
+	}
+	public void init(){
+		System.out.println("用户对象出生了，今天是他第一次来到世界上！");
+	}
 	
 
 }
