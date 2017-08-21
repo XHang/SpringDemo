@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd">
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
 	<!-- 定义一个DAO的Bean对象，起名为u ,该bean对象里面有两个成员变量，并给他们赋值-->
     <bean id="userDao" class="com.Spring.DAO.UserDAOMySQLimplement">
     	<property name="datasource" ref="dataSource"/>
@@ -11,12 +14,14 @@
     <bean id="Service" class="com.Spring.Service.UserService">
     	<property name="dao" ref="userDao"/>
     </bean>
+    <!-- 引入外部的properties文件 -->
+    <context:property-placeholder location="jdbc.properties"/>
     <!-- 定义一个数据源 -->
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-	    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-	    <property name="url" value="jdbc:mysql://localhost/Spring"/>
-	    <property name="username" value="root"/>
-	    <property name="password" value="tiger"/>
+	    <property name="driverClassName" value="${jdbc.driverClassName}"/>
+	    <property name="url" value="${jdbc.url}"/>
+	    <property name="username" value="${jdbc.username}"/>
+	    <property name="password" value="${jdbc.password}"/>
 	</bean>
     
    
