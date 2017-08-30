@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
+        <!-- Spring视图解析器 -->
+		<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+    		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>  
+    		<property name="prefix" value="/"/>  
+    		<property name="suffix" value=".jsp"/>  
+		</bean> 
+		 
+		 <!-- 配置消息转换器，使@ResponseBody的数据能转成适当的类型，注意，使用该json转换器必须有Jackson的依赖 -->
+		<bean id="JsonConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"></bean>
+		<bean id="StringConverter" class="org.springframework.http.converter.StringHttpMessageConverter">
+			<property name="supportedMediaTypes">
+				<list>
+					<value>text/plain;charset=utf-8</value>
+				</list>
+			</property>		
+		</bean>
+		<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+			<property name="messageConverters">
+				<list>
+					<ref bean="StringConverter"/>
+					<ref bean="JsonConverter"/>
+				</list>
+			</property>
+		</bean>
+		
+		<!-- 配置文件上传解析器 -->
+		<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    		<property name="maxUploadSize" value="10000000"/>	<!-- 支持的最大文件大小，以字节为单位 -->
+    		<property name="maxInMemorySize" value="40960"></property>	<!-- 支持的最大缓存 -->
+    		<property name="defaultEncoding" value="utf-8"></property>
+		</bean>		
+		
+		<!-- 在这里指定配置文件，以此演示配置文件和注解等方式配置Springmvc -->
+		<!-- 现在用的是注解形式 -->
+		<import resource="Annotation.xml"/>
+		<!-- <import resource="config.xml"/> -->
+		
+		<!-- 配置拦截器 -->
+		<mvc:interceptors>
+			<mvc:interceptor>
+				<!-- 匹配所有url请求 -->
+				<mvc:mapping path="/**"/>
+				<!-- 指定拦截器类 -->
+				<bean class="com.Springmvc.Interceptor.LogInterceptor"></bean>
+			</mvc:interceptor>
+		</mvc:interceptors>
+</beans>
