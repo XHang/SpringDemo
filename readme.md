@@ -74,3 +74,10 @@ PS:
 1. 只加json的依赖，就想不通过任何配置来把方法的返回值变成json数据，你还是太年轻了  
     除非你用的是SpringBoot的自动配置，或者用了这个配置<mvc:annotation-driven />
 
+## SpringMVC jsonp的设置
+1. 什么是jsonp？其实就是用来跨域的请求数据类型，ajax的daatType加了jsonp就可以实现跨域。
+
+2. 吐槽，对于跨域请求，其实已经有请求头来设置跨域了，再弄个jsonp实在是多次一举。
+ 
+ 
+ 3. 挖坑，待定
