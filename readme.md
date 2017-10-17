@@ -81,3 +81,6 @@ PS:
  
  
  3. 挖坑，待定
+ 
+##  web端知识点
+1. request.getParameter("参数")  如果参数没有的话，返回null；

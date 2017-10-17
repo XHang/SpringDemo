@@ -79,6 +79,13 @@
        <plugin>
           <groupId>org.apache.tomcat.maven</groupId>
           <artifactId>tomcat7-maven-plugin</artifactId>
+            <configuration>
+		          <ignorePackaging>true</ignorePackaging>
+		          <uriEncoding>utf-8</uriEncoding>
+		          <port>10086</port>
+		          <path>/server</path>
+		          <contextReloadable>false</contextReloadable>
+		        </configuration>
           <version>2.2</version>
         </plugin>
     </plugins>
