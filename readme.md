@@ -54,8 +54,8 @@
 乱码问题演示下的话，进入这个网站操作  
 `http://localhost:8080/SpringMVC/Encode.jsp`  
 可惜Spring提供的`org.springframework.web.filter.CharacterEncodingFilter`  
-只能处理post请求的数据。  
-TODO ：之后会写一个不基于框架的过滤器
+只能处理post请求的数据。   
+不过某人已经实现了一个可以处理get乱码的过滤器了  
 
 PS:  
 		
