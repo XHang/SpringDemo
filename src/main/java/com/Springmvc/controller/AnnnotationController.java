@@ -120,6 +120,32 @@ public class AnnnotationController {
 		String json = mapper.writeValueAsString(user);
 		return "你发送的对象是"+json;
 	}
+	
+	@ResponseBody
+	@RequestMapping("/encodeExample") 
+	public String encodeExample(String keyword){
+		System.out.println("你输入的参数值是"+keyword);
+		return keyword;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/encodeExampleOfArray") 
+	public String encodeExampleOfArray(String[] keyword){
+		System.out.println("你输入的参数值是"+arrayToString(keyword));
+		return arrayToString(keyword);
+	}
+	
+	private String arrayToString(String[] strArr){
+		StringBuilder sb = new StringBuilder();
+		if(strArr==null ||strArr.length==0){
+			return "";
+		}
+		for(String str:strArr){
+			sb.append(str+",");
+		}
+		sb.deleteCharAt(sb.length()-1);
+		return sb.toString();
+	}
 
 }
 
