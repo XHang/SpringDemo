@@ -19,6 +19,22 @@
 1. 构建项目的POM文件，根据官网的快速入门
 
 
+##组件--SpringCloudConfig
+作用：为分布式系统的外部配置提供服务端和客户端支持。  
+特征：
+1. Http，用于外部配置的api资源
+2. 加密和解密属性值
+3. 只需使用@EnableConfigServer轻松嵌入到Spring Boot应用程序中  
+4. 使用远程属性来初始化Spring环境  
+5. 只要SpringBoot的启动器和SpringConfigClient在类路径上，所有SpringBoot程序都会访问  
+`http：// localhost：8888`（默认值为`spring.cloud.config.uri`）上的配置服务器
+
+###  开始入门
+1. 修改你的pom文件
+
+
+
+
 ## 出错
 1. 第一个出错就是复制官网的POM代码构建时报错了。。
       我简直是日了哈士奇了。这么大的官方网站，直接拷贝下来POM代码居然die了。  
