@@ -5,7 +5,8 @@ eureka:
   instance:
     hostname: localhost
   client:
+# 可以关闭Eureka服务器的自动注册行为
     registerWithEureka: false
     fetchRegistry: false
     serviceUrl:
-      ## defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
