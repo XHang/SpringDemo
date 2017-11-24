@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
@@ -145,6 +146,20 @@ public class AnnnotationController {
 		}
 		sb.deleteCharAt(sb.length()-1);
 		return sb.toString();
+	}
+	
+	@RequestMapping("/xml")
+	@ResponseBody
+	public String xmlExample(@RequestBody String xml,HttpServletResponse response){
+		System.out.println("接收的xml是");
+		System.out.println(xml);
+		response.setContentType("application/xml");
+		return "<note>"
+						+"<to>George</to>"
+						+"<from>John</from>"
+						+"<heading>Reminder</heading>"
+						+"<body>Don't forget the meeting!</body>"
+				+"</note>";
 	}
 
 }

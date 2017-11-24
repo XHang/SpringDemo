@@ -26,11 +26,15 @@
 				<list>
 					<value>text/plain;charset=utf-8</value>
 				</list>
-			</property>		
+			</property>
+		</bean>
+		<bean id="xmlConverter"  class="com.Springvc.converter.CustomizeConverter">
+			<constructor-arg name="charset" value="utf-8"></constructor-arg>
 		</bean>
 		<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
 			<property name="messageConverters">
 				<list>
+					<ref bean="xmlConverter"/>
 					<ref bean="StringConverter"/>
 					<ref bean="JsonConverter"/>
 				</list>
