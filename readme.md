@@ -65,33 +65,67 @@ Hystrix是Netflix创建的一个库 ,用于实现断路器
 2. 构建boot程序,只需要在boot程序加`@SpringBootApplication`and `@EnableCircuitBreaker`即可  
 3. 创建一个bean并创建一个方法，方法上加`@HystrixCommand(fallbackMethod = "defaultStores")`注解  
    使用该注解的方法所在的bean会交由Hystrix断路器的代理来管理，客户端连接该代理时，断路器将判断何时间开路和闭合，以及发生故障该如何    
-   要配置HystrixCommand注解，还可以写该注解的commandProperties属性，有关该属性的配置，可以参考
+   要配置HystrixCommand注解，还可以写该注解的commandProperties属性，有关该属性的配置，可以参考  
     Hystrix wiki[https://github.com/Netflix/Hystrix/wiki/Configuration]  
-    PS：该Bean也被称为断路器了
+    PS：该Bean也被称为断路器了  
 
-### Propagating the Security Context or using Spring Scopes
-待定，跟线程有关，大意是说，如果你想其他线程也起断路器的作用的话，该如何如何
+### Propagating the Security Context or using Spring Scopes  
+待定，跟线程有关，大意是说，如果你想其他线程也起断路器的作用的话，该如何如何  
 
 ### 什么时候会发生熔断
 1. 服务终止，停止。那么一旦达到熔断的条件，线路将断掉。
 
 ### 健康指示器
-断路器线路的健康状态也包含在使用Hystrix断路器的应用中，开启该应用，访问/healt即可
+断路器线路的健康状态也包含在使用Hystrix断路器的应用中，开启该应用，访问/health即可  
+** 但是我自己新建了一个项目，用于断路器，访问该项目的/healt是404，未解决**    
+**已解决，是我的锅，boot程序所在的包和组件注解包不是同一个基本包，扫描不到**  
+
 
 ### 度量流
-启动器依赖改为
+启动器依赖改为  
 
 	 <dependency>
 	        <groupId>org.springframework.boot</groupId>
 	        <artifactId>spring-boot-starter-actuator</artifactId>
 	 </dependency>
-可以在管理端点开启度量流，访问`/hystrix.stream`试下吧
+可以在管理端点开启度量流，访问`/hystrix.stream`试下吧  
+**注意的说，要访问hystrix.stream这个端点的话，则对应的断路器要工作一次，否则会报503，服务不可用**
 
 ### Hystrix 的仪表盘（Dashboard）
 Hystrix可以搜集所有使用HystrixCommand注解的bean，也就是断路器，Dashboard可以显示每个断路器的运行情况。  
 要使用Dashboard，先加  
 groupID=`Dashboardorg.springframework.cloud`   artifactId=`spring-cloud-starter-hystrix-dashboard`   
 然后访问·` hystrix`地址，并设置客户端的/hystrix.stream端点  
+**结果能正常访问，但是怎么设置/hystrix.stream端点，前缀是什么？** 
+**就设置你使用@HystrixCommand微服务地址**  
+
+### Turbine
+Turbine是一个应用程序，它将使用的/hystrix.stream端点汇总到一个用于Hystrix仪表板的组合/turbine.stream中。  
+个别断路器可以通过Eureka获得  
+要使用这个Turbine  
+1. 在pom里面加`spring-cloud-starter-turbine`依赖。  
+2. 在boot程序加@EnableTurbine注解  
+注意：默认情况下，Turbine会在Eureka里面查找客户端的homePageUrl ，然后获知端口，组合/hystrix.stream  
+这意味着如果`spring-boot-actuator`在自己的端口上运行，访问 `/hystrix.stream`将失败，要让Turbine找的正确的端口  
+你需要添加这个配置  
+
+	eureka:
+	  instance:
+	    metadata-map:
+	      management.port: ${management.port:8081}
+	
+其他略
+
+## 客户端负载平衡：Ribbon
+含义:Ribbon是一个客户端负载均衡器，他可以让你对HTTP和TCP的客户端有很大的控制权。  
+Ribbon一个重要的概念是客户端的命名，每一个平衡负载器是组件的一部分
+## 如何引入Ribbon 
+使用groupID=`org.springframework.cloud` and artifactId=`spring-cloud-starter-ribbon`
+## 定制你的Ribbon Client
+题外话：你可以使用`<client>.ribbon.*`来配置Ribbon Client某些位。
+使用@RibbonClient注解一个普通类使之成为Ribbon Client客户端的配置类（`RibbonClientConfiguration`）
+
+
 	
 
 

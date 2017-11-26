@@ -3,7 +3,6 @@ package cxh;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 //声明这个组件是一个Eureka客户端
 @EnableEurekaClient
 @RestController
-@EnableCircuitBreaker
 public class Client {
 	
 	@RequestMapping("/")
