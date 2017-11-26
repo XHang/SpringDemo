@@ -1,20 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>cxh</groupId>
-  <artifactId>spring-cound-Netflix</artifactId>
-  <packaging>jar</packaging>
+  <groupId>com.spring</groupId>
+  <artifactId>hystrix</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>spring-cound-config-server Maven Webapp</name>
-  <url>http://maven.apache.org</url>
-<parent>
+  <name>SpringCloud断路器模式</name>
+  <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.5.4.RELEASE</version>
+    <version>1.4.5.RELEASE</version>
 </parent>
-<dependencyManagement>
+  <dependencyManagement>
     <dependencies>
-        <dependency>
+    	 <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
             <version>Camden.SR7</version>
@@ -24,18 +21,46 @@
     </dependencies>
 </dependencyManagement>
 <dependencies>
+	<!-- 断路器需要加的包 -->
     <dependency>
+    	<groupId>org.springframework.cloud</groupId>
+    	<artifactId>spring-cloud-starter-hystrix</artifactId>
+    </dependency>
+    
+    <!-- 支持@HystrixCommand注解 -->
+    <dependency>
+    	<groupId>com.netflix.hystrix</groupId>
+    	<artifactId>hystrix-javanica</artifactId>
+	</dependency>
+    
+    <!-- 不加这个启动时会报错，原因不明 -->
+   <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-eureka</artifactId>
     </dependency>
-    <!-- 查看Eureka健康的组件 -->
+    <!-- 开启hystrix的度量流 -->
     <dependency>
-  		<groupId>org.springframework.boot</groupId>
-  		<artifactId>spring-boot-actuator</artifactId>
-	</dependency>
-	
-	
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-actuator</artifactId>
+	 </dependency>
+	 <!-- 使用 Hystrix Dashboard -->
+	    <dependency>
+	        <groupId>org.springframework.cloud</groupId>
+	        <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+	 </dependency>
+	 
+    
 </dependencies>
+<repositories>
+    <repository>
+        <id>spring-snapshots</id>
+        <name>Spring Snapshots</name>
+        <url>https://repo.spring.io/libs-snapshot</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
 <build>
 	<plugins>
 			<plugin>
@@ -49,5 +74,6 @@
 			</plugin>
 	</plugins>
 </build>
-	 
+  
+  
 </project>
