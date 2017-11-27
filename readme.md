@@ -121,10 +121,65 @@ Turbine是一个应用程序，它将使用的/hystrix.stream端点汇总到一�
 Ribbon一个重要的概念是客户端的命名，每一个平衡负载器是组件的一部分
 ## 如何引入Ribbon 
 使用groupID=`org.springframework.cloud` and artifactId=`spring-cloud-starter-ribbon`
-## 定制你的Ribbon Client
-题外话：你可以使用`<client>.ribbon.*`来配置Ribbon Client某些位。
-使用@RibbonClient注解一个普通类使之成为Ribbon Client客户端的配置类（`RibbonClientConfiguration`）
+## 定制你的Ribbon Client（代码配置）
+题外话：你可以使用`<client>.ribbon.*`来配置Ribbon Client某些位。  
+使用@RibbonClient注解一个普通类使之成为Ribbon Client客户端的声明配置类（`RibbonClientConfiguration`）  
+这个声明配置类需要引用其他配置类，而这个配置类才是Ribbon真正的生效配置  
+默认情况下，Ribbon会默认注入几个bean  (以下格式为：bean类型：bean名：类名)
+1. IClientConfig ribbonClientConfig: DefaultClientConfigImpl
+2. IRule ribbonRule: ZoneAvoidanceRule
+3. IPing ribbonPing: NoOpPing
+4. ServerList<Server> ribbonServerList: ConfigurationBasedServerList
+5. ServerListFilter<Server> ribbonServerListFilter: ZonePreferenceServerListFilter
+6. ILoadBalancer ribbonLoadBalancer: ZoneAwareLoadBalancer  
+你可以在配置类重新注入这些bean  
 
+##定制你的Ribbon Client （属性配置） 
+Spring Cloud Netflix 1.2.0以后，支持用属性配置Ribbon clients。  
+注意：这种配置优先于代码配置，优先于Spring Cloud Netflix提供的默认类。  
+支持的属性列表如下所示：（注意，属性的前缀这里没有列出，正常应该是`<clientName>.ribbon.`  
+1. NFLoadBalancerClassName: should implement ILoadBalancer  
+2. NFLoadBalancerRuleClassName: should implement IRule  
+3. NFLoadBalancerPingClassName: should implement IPing  
+4. NIWSServerListClassName: should implement ServerList  
+5. NIWSServerListFilterClassName should implement ServerListFilter  
+示例的配置如下  
+
+	users:
+  		ribbon:
+    	NFLoadBalancerRuleClassName:com.netflix.loadbalancer.WeightedResponseTimeRule
+这个的意思的是为服务名为users设置IRule
+
+## Ribbon和Eureka互联
+￥#@%#￥%……%￥&%@￥%#%我不知道官网在讲什么鬼
+
+## 未解之谜
+1. 只学会了配置RIbbon客户端配置，然后呢？坑！
+
+#Feign
+含义：这是一个声明式的web服务客户端。只需创建一个接口并对其进行注解，就可以使用了  
+	 支持JAX-RS注解和JAX-RS注解，支持可插拔的编码器和解码器。
+## 搭建入门环境
+1. 构建你的pom文件，使用groupID=`org.springframework.cloud` and artifactID=`spring-cloud-starter-feign`
+2. 编写boot程序，详情请见Feign分支
+3. 编写客户端接口  
+几个注意点  
+1：客户端接口对应的bean  Name是类名的完全限定名称，这个bean还会创建一个别名，默认情况下，别名=@FeignClient的value(name)属性+FeignClient，你可以使用@FeignClient的Qualifier属性来更改别名  
+2: 编写了客户端后，Ribbon client需要查找到客户端服务的物理地址，如果你的应用是一个Eureka客户端，则它会解析Eureka里面已经注册好的服务。如果你不想使用Eureka，也可以简单的外部配置中配置服务器列表  
+3： @FeignClient注解有一个属性configuration 可以声明额外的配置  
+## Feign配置
+SpringCloudNetflix为feign提供以下默认的bean（BeanType beanName: ClassName）  
+1. Decoder feignDecoder: ResponseEntityDecoder (包装了一个 SpringDecoder)  
+2. Encoder feignEncoder: SpringEncoder  
+3. Logger feignLogger: Slf4jLogger  
+4. Contract feignContract: SpringMvcContract  
+5. Feign.Builder feignBuilder: HystrixFeign.Builder  
+6. Client feignClient: 如果ribbon可用，则这个bean是一个LoadBalancerFeignClient，否则默认  
+_______________________________________________________________________
+feign clients 有两种：OkHttpClient 和ApacheHttpClient 
+_______________________________________________________________________
+你可以设置`feign.okhttp.enabled=true` or `feign.httpclient.enabled=true` 并让他们在类路径上
+另外，不提供以下bean，但如果在应用程序的环境中查找到以下bean，还是可以用这些bean来创建 feign client
 
 	
 
