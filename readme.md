@@ -257,3 +257,18 @@ Zuul支持用任何JVM语言编写规则和过滤器，支持java和Groovy
 		----as  application.yml
 
 上面的配置意思是说，如果你在浏览器请求`/myusers`这个url，那么它将会转发到users服务
+
+更细粒度的配置可以这么配
+	
+	 zuul:
+	  routes:
+	    users:
+	      path: /myusers/**
+	      serviceId: users_service
+这意味着访问`/myusers/**`将被转发到users_service这个服务。并且路由必须有一个路径  
+PS：`/myusers/*`只匹配一个级别，但是`/myusers/**`分层次匹配    
+PS:`serviceId`也可以改为URL，比如说`url: http://example.com/users_service`  
+PS:这些简单的URL路由，断路器起不来作用，Ribbon也不起作用，所以还是推荐用serverID来作为路由映射
+目前需要在Ribbo中禁用Eureka支持？？
+PS:zuul.routes条目实际是用于绑定到ZuulProperties类型的对象，如果你看看这个对象的属性话，可以发现有一个retryable的标志，在配置文件加上，把值设置为true可以使客户端重试失败的请求
+（如果需要，还可以在Ribbo客户端配置中修改重试操作的次数）
