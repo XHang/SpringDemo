@@ -180,9 +180,80 @@ feign clients 有两种：OkHttpClient 和ApacheHttpClient
 _______________________________________________________________________
 你可以设置`feign.okhttp.enabled=true` or `feign.httpclient.enabled=true` 并让他们在类路径上
 另外，不提供以下bean，但如果在应用程序的环境中查找到以下bean，还是可以用这些bean来创建 feign client
+1. Logger.Level
+2. Retryer
+3. ErrorDecoder
+4. Request.Options
+5. Collection<RequestInterceptor>  
+创建这些Bean并把它放到配置类上，可以覆盖  
 
+##手动创建 feign客户端
+有些时候，使用上面的方式来建立客户端可能是没用的，这时候，就需要用Feign Builder API来创建Feigh客户端  
+TODO 将代码复制到项目中并加上注释  
+
+## Feign的Hystrix支持
+如果Hystrix类class path上，那么默认情况下，Feign所有的方法都用断路器来包装。  
+如果想禁用Feign上的Hystrix支持的话，请设置属性`feign.hystrix.enabled=false`  
+好像有说要具体禁用每一个客户端的Hystrix应该怎么办，现在还不是很理解，之后再试试看  
+TODO 代码记得补充  
+
+## Feign Hystrix Fallbacks
+Feign Hystrix支持在线路出现问题的时候使用回退，执行其他方法，以避免堵塞请求。  
+要开启这个功能的话，只需要在@FeignClient注解上加一个fallback属性，属性值填回退的类名  
+如果想要知道回退的原因是什么，你可以在创建回退类时实现一个FallbackFactory<HystrixClient>接口，在代码里面处理    
+TODO 代码补上哦   
+PS：回退的功能有一定限制，目前不支持`com.netflix.hystrix.HystrixCommand` and `rx.Observable`  
+
+
+## .Feign日志
+Feign会为每一个Feign客户端创建一个记录器？？默认情况下，记录器的名称是Feign客户端接口的完整类名全称
+注：Feign只记录Debug级别的日志
+我猜你可以更改？
+`logging.level.project.user.UserClient: DEBUG`  on `application.yml`  
+你可以为每一个客户端配置 Logger.Level对象来告诉Feign要记录多少日志
+TODO 代码补上，注释补上
+
+
+# Zuul 路由
+路由在微服务中是一个完整的组成部分。用于处理URL和微服务之间的映射    
+比如说：`\`会映射到你的web应用程序、`\api\user`映射到用户服务、`\api\shop`映射到商店服务  
+Zuul是Netflix提供的基于JVM的路由器和服务器端负载均衡器。	
+Netflix的Zuul提供以下功能  
+1. 验证  
+2. Insights  
+3. 压力测试  
+4. 金丝雀测试（一部分服务器升级到最新版本，然后没问题再全部部署）  
+5. 动态路由  
+6. 服务迁移  
+7. 卸下负载，减轻负载压力  
+8. 安全   
+9. 静态响应处理  
+10. 流量管理  
+Zuul支持用任何JVM语言编写规则和过滤器，支持java和Groovy  
+
+
+> 注意：在新版本中，`zuul.max.host.connections`配置属性已经被两个新属性取而代之  
+> 注意：所有路由默认的Hystrix隔离模式是`SEMAPHORE`,如果这种隔离模式是首选的？？，`zuul.ribbonIsolationStrategy`可以隔离模式为`THREAD `
+## 快速开始
+### 1. 啥也别多说了，拿出你的Pom文件，加上依赖吧  
+
+	 <dependency>  
+        <groupId>org.springframework.cloud</groupId>  
+        <artifactId>spring-cloud-starter-zuul</artifactId>  
+     </dependency>  
+
+### 2. 植入Zuul的反向代理  
+ SpringCloud已经嵌入了一个Zuul代理，为了使用它，在boot程序里面加上@EnableZuulProxy注解，并将本地调用转发给对应服务  
+ Zuul代理通过Ribbon来找到转发的实例，并且所以请求都会在Hystrix中运行，这意味着所有故障都会显示在Hystrix度量标准中，一旦线路开了，代理不会再联系服务
+> `spring-cloud-starter-zuul` 不包含发现客户端，你可以使用Eureka来帮忙干活，在classpath添加Eureka的依赖吧  
+> 要跳过自动添加的服务，可以在`zuul.ignored-services`设置一些模式，匹配这个模式的服务将被忽略。如果一个服务满足这个模式，但是又包含在路由映射中，那么它还是会被忽略？？
+   
+### 3. 配置        
+ 为了增加或者改变代理路由，你可以在外部配置添加一以下配置
 	
+	 zuul:
+	  routes:
+	    users: /myusers/**  
+		----as  application.yml
 
-
-          
- 
+上面的配置意思是说，如果你在浏览器请求`/myusers`这个url，那么它将会转发到users服务
