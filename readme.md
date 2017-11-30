@@ -270,3 +270,10 @@ PS：`/myusers/*`只匹配一个级别，但是`/myusers/**`分层次匹配
 PS:`serviceId`也可以改为URL，比如说`url: http://example.com/users_service`  
 PS:这些简单的URL路由，断路器起不来作用，Ribbon也不起作用，所以还是推荐用serverID来作为路由映射
 目前需要在Ribbo中禁用Eureka支持？？
+
+PS:在转发的请求头中，X-Forwarded-Host会被添加进去，要关闭它，可以设置`zuul.addProxyHeaders = false`
+
+## Zuul Http Client
+Zuul默认使用的http客户端是apache的httpclient，而不是Ribbon的RestClient。
+如果要替换使用为RestClient或者okhttp3.OkHttpClient。
+可以设置`ribbon.restclient.enabled = true`或者`ribbon.okhttp.enabled = true`
