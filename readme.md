@@ -272,3 +272,9 @@ PS:这些简单的URL路由，断路器起不来作用，Ribbon也不起作用�
 目前需要在Ribbo中禁用Eureka支持？？
 PS:zuul.routes条目实际是用于绑定到ZuulProperties类型的对象，如果你看看这个对象的属性话，可以发现有一个retryable的标志，在配置文件加上，把值设置为true可以使客户端重试失败的请求
 （如果需要，还可以在Ribbo客户端配置中修改重试操作的次数）
+PS:在转发的请求头中，X-Forwarded-Host会被添加进去，要关闭它，可以设置`zuul.addProxyHeaders = false`
+
+## Zuul Http Client
+Zuul默认使用的http客户端是apache的httpclient，而不是Ribbon的RestClient。
+如果要替换使用为RestClient或者okhttp3.OkHttpClient。
+可以设置`ribbon.restclient.enabled = true`或者`ribbon.okhttp.enabled = true`
