@@ -278,3 +278,18 @@ PS:在转发的请求头中，X-Forwarded-Host会被添加进去，要关闭它�
 Zuul默认使用的http客户端是apache的httpclient，而不是Ribbon的RestClient。
 如果要替换使用为RestClient或者okhttp3.OkHttpClient。
 可以设置`ribbon.restclient.enabled = true`或者`ribbon.okhttp.enabled = true`
+
+## 路由端点
+如果你在你的boot Actuator 程序中加上了@EnableZuulProxy这个注解，则应用程序会开放一个断点`/routes`.
+get请求该端点会返回一个路由列表。如果是post请求的话会强制刷新所有路由列表。
+其实吧，路由应该响应服务列表的改变，post请求让它立即响应罢了
+
+## 处理旧端点和本地转发
+迁移现有的应用程序和api时，一个重要的事就是处理旧的端点，常见的处理方式是慢慢用不同的实现来替换他们。
+用Zuul就可以做到这一点，处理来自旧端点客户端所有流量，并将一些请求重定向到新端点。
+其他看不懂
+
+## 通过Zuul上传文件
+如果你使用了`@EnableZuulProxy`就可以用正常的代理路径来上传文件，只要文件很少的话，就可以正常工作。  
+对于大文件来说，在`/zuul/*`中有一条绕过Spring DispatcherServlet（避免多部分处理）的替代路径。
+即`zuul.routes.customers = / customers / **`，则可以将大文件上传到该路径
