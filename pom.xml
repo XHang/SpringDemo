@@ -1,11 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>cxh</groupId>
-  <artifactId>spring-cloud-eureka-server</artifactId>
+  <groupId>com.cxh.SpringCloud</groupId>
+  <artifactId>Feign-server</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>eureka-server</name>
-  <packaging>war</packaging>
-    <parent>
+  <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>1.4.5.RELEASE</version>
@@ -22,15 +20,44 @@
     </dependencies>
 </dependencyManagement>
 <dependencies>
-<!--     <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-eureka</artifactId>
-    </dependency> -->
+	<!-- feign依赖 -->
+    <dependency>
+    	<groupId>org.springframework.cloud</groupId>
+    	<artifactId>spring-cloud-starter-feign</artifactId>
+    </dependency>
+    <!-- Eureka客户端支持 -->
     <dependency>
         <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-eureka-server</artifactId>
+        <artifactId>spring-cloud-starter-eureka</artifactId>
+    </dependency>
+        <!-- 查看Eureka健康的组件 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-actuator</artifactId>
     </dependency>
     
+    <!-- 启动hystrix支持 -->
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-hystrix</artifactId>
+    </dependency>
+   <!-- 启用hystrix度量流支持 -->
+   <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+ </dependency>
+ 
+    <!-- 启用hystrix  Dashboard支持 -->
+   <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+ </dependency>
+ 
+ <!-- 启用Zuul路由支持 -->
+ <dependency>  
+    <groupId>org.springframework.cloud</groupId>  
+    <artifactId>spring-cloud-starter-zuul</artifactId>  
+ </dependency> 
     
 </dependencies>
 <repositories>
@@ -56,5 +83,6 @@
 			</plugin>
 	</plugins>
 </build>
+  
   
 </project>
