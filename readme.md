@@ -12,9 +12,9 @@ Netflix OSS是由Netflix公司主持开发的一套代码框架和库，目的�
 ## SpringCloud共有属性
 
 ### RestTemplate作为负载均衡的客户端
-RestTemplate可以自动配置并使用Ribbon，要做到这一点，创建一个RestTemplate的bean并加上`@LoadBalanced`注解  
-注意：RestTemplate使用的URL需要使用虚拟主机名称（即服务名称，而不是主机名称），虚拟主机名称当然要从Eureka注册的实例查找咯
-eg：`http://stores/stores`
+RestTemplate可以自动配置并使用Ribbon，要做到这一点，创建一个RestTemplate的bean并加上`@LoadBalanced`注解    
+注意：RestTemplate使用的URL需要使用在Eureka注册的应用的`spring.application.name`  
+eg：`http://user/getlist`使用这个url地址Ribbon就会去Eureka查找Applcation Name为User的微服务。然后随机取该服务的ip地址+端口替代user进行请求访问。毕竟同一个微服务可能有多个实例对吧。
 
 
 ## 服务发现（Eureka）
@@ -127,7 +127,7 @@ Turbine是一个应用程序，它将使用的/hystrix.stream端点汇总到一�
 ## 客户端负载平衡：Ribbon
 含义:Ribbon是一个客户端负载均衡器，他可以让你对HTTP和TCP的客户端有很大的控制权。  
 Ribbon一个重要的概念是客户端的命名，每一个平衡负载器是组件的一部分  
-目前能知道的：使用Ribbon的http客户端，在处理请求时，会把多个请求分发到同个服务，不同端口的微服务上
+目前能知道的：使用Ribbon的http客户端，在处理请求时，会把多个请求分发到同个服务，不同端口的微服务上,实现负载均衡
 ## 如何引入Ribbon 
 使用groupID=`org.springframework.cloud` and artifactId=`spring-cloud-starter-ribbon`
 ## 定制你的Ribbon Client（代码配置）
