@@ -102,8 +102,9 @@ Hystrix是Netflix创建的一个库 ,用于实现断路器
 ### Hystrix 的仪表盘（Dashboard）
 Hystrix可以搜集所有使用HystrixCommand注解的bean，也就是断路器，Dashboard可以显示每个断路器的运行情况。  
 要使用Dashboard，先加  
-groupID=`Dashboardorg.springframework.cloud`   artifactId=`spring-cloud-starter-hystrix-dashboard`   
-然后访问·` hystrix`地址，并设置客户端的/hystrix.stream端点  
+groupID=`Dashboardorg.springframework.cloud`   artifactId=`spring-cloud-starter-hystrix-dashboard`   
+然后别忘了在boot程序加上@EnableHystrixDashboard注解  
+然后访问·` hystrix`地址，并设置客户端的/hystrix.stream端点  
 **结果能正常访问，但是怎么设置/hystrix.stream端点，前缀是什么？** 
 **就设置你使用@HystrixCommand微服务地址**  
 
