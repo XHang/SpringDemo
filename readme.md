@@ -201,8 +201,8 @@ _______________________________________________________________________
 TODO 将代码复制到项目中并加上注释  
 
 ## Feign的Hystrix支持
-如果Hystrix类class path上，那么默认情况下，Feign所有的方法都用断路器来包装。  
-如果想禁用Feign上的Hystrix支持的话，请设置属性`feign.hystrix.enabled=false`  
+如果Hystrix类class path上，那么默认情况下，Feign所有的方法都用断路器来包装。  
+如果想禁用Feign上的Hystrix支持的话，请设置属性`feign.hystrix.enabled=false`  
 好像有说要具体禁用每一个客户端的Hystrix应该怎么办，现在还不是很理解，之后再试试看  
 TODO 代码记得补充  
 
