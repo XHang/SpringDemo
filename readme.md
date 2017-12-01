@@ -211,7 +211,11 @@ Feign Hystrix支持在线路出现问题的时候使用回退，执行其他方�
 要开启这个功能的话，只需要在@FeignClient注解上加一个fallback属性，属性值填回退的类名  
 如果想要知道回退的原因是什么，你可以在创建回退类时实现一个FallbackFactory<HystrixClient>接口，在代码里面处理    
 TODO 代码补上哦   
-PS：回退的功能有一定限制，目前不支持`com.netflix.hystrix.HystrixCommand` and `rx.Observable`  
+PS：回退的功能有一定限制，目前不支持`com.netflix.hystrix.HystrixCommand` and `rx.Observable`  、
+	
+## Fegin的Ribbon支持
+其实吧，Fegin默认是支持Ribbon的。不然的话，Fegin怎么根据@FeginClient的value找到Eureka的实例地址来请求的？
+
 
 
 ## .Feign日志
