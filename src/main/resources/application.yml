@@ -1,12 +1,34 @@
-server:
-  port: 8761
-
-eureka:
-  instance:
-    hostname: localhost
-  client:
-# 可以关闭Eureka服务器的自动注册行为
-    registerWithEureka: false
-    fetchRegistry: false
-    serviceUrl:
-       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+# management:context-path: 192.168.21.160
+# 客户端启动的端口，同时也会告诉Eureka服务器
+ server:
+   port: 10086
+# Eureka服务器的连接地址,前面的admin:12345@是嵌入了身份凭证，服务器可以用于身份凭证
+ eureka:
+   client:
+      serviceUrl:
+        defaultZone: http://localhost:8761/eureka/
+# 告诉Eureka服务端这边客户端的地址
+   instance:
+      hostname: localhost
+# 告诉服务器客户端的状态页面地址和健康页面地址，默认会补其前缀hostname，不知如何更改,如果没有补前缀的话，默认这个地址是安全链接
+#      statusPageUrlPath: https://${eureka.hostname}/infopath
+#      healthCheckUrlPath: https://${eureka.hostname}/healthpath
+#      homePageUrl: https://${eureka.hostname}/home
+# 让你的客户端只能通过https来访问。但是Eureka服务器内部的客户端主页和状态页面仍然是不安全的url
+#      nonSecurePortEnabled: false
+#      securePortEnabled: true
+# 告诉Eureka客户端的名字，如果不指定的话会有一个默认值
+ spring:
+   application:
+      name: ZuulServer
+ zuul:
+  routes:
+    shop:
+      path: /**/shop/**
+      serviceId: shop
+    game:
+# 如果你配成/game/**这样的话，只有端口地址后面带game才可以找到映射路径,这样的配的话，只有url地址含有/game/字符即可正确映射
+      path: /**/game/**
+      serviceId: game
+  debug: 
+    request: true
