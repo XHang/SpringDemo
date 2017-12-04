@@ -30,5 +30,19 @@
 # 如果你配成/game/**这样的话，只有端口地址后面带game才可以找到映射路径,这样的配的话，只有url地址含有/game/字符即可正确映射
       path: /**/game/**
       serviceId: game
-  debug: 
-    request: true
+    eurekaclient:
+      path: /eurekaclient/**
+#    加以下两个，Zuul接收到的Cookie等头信息才能传递到下一个中间件，才可能到达目的地      
+      sensitiveHeaders: 
+      custom-sensitive-headers: true  
+      serviceId: EurekaClient 
+#   开启debug模式
+ logging:
+    level:
+      com.netflix: DEBUG
+# 断路器超时 10秒
+ hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds:  10000
+# Ribbon负载均衡超时3秒  读取超时 1分钟
+ ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 60000
