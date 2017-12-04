@@ -1,7 +1,7 @@
  management:context-path: 192.168.21.160
 # 客户端启动的端口，同时也会告诉Eureka服务器
  server:
-   port: 10086
+   port: 2333
 # Eureka服务器的连接地址,前面的admin:12345@是嵌入了身份凭证，服务器可以用于身份凭证
  eureka:
    client:
@@ -18,9 +18,10 @@
       healthCheckUrlPath: https://${eureka.hostname}/healthpath
       homePageUrl: https://${eureka.hostname}/home
 # 让你的客户端只能通过https来访问。但是Eureka服务器内部的客户端主页和状态页面仍然是不安全的url
-      nonSecurePortEnabled: false
-      securePortEnabled: true
+#      nonSecurePortEnabled: false
+#      securePortEnabled: true
+#      很奇怪，加了这个，其他微服务想通过Eureka服务器访问这个的话会被重定向到443端口
 # 告诉Eureka客户端的名字，如果不指定的话会有一个默认值
  spring:
    application:
-      name: 测试Eureka客户端
+      name: EurekaClient
