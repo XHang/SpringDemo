@@ -9,6 +9,14 @@ Netflix OSS是由Netflix公司主持开发的一套代码框架和库，目的�
 注1： 服务发现（Eureka）既是微服务的发现  
 注2： 负载平衡就是分摊请求压力到分服务器上  
 
+## SpringCloud共有属性
+
+### RestTemplate作为负载均衡的客户端
+RestTemplate可以自动配置并使用Ribbon，要做到这一点，创建一个RestTemplate的bean并加上`@LoadBalanced`注解    
+注意：RestTemplate使用的URL需要使用在Eureka注册的应用的`spring.application.name`  
+eg：`http://user/getlist`使用这个url地址Ribbon就会去Eureka查找Applcation Name为User的微服务。然后随机取该服务的ip地址+端口替代user进行请求访问。毕竟同一个微服务可能有多个实例对吧。
+
+
 ## 服务发现（Eureka）
 用于发现Eureka微服务
 
@@ -94,8 +102,9 @@ Hystrix是Netflix创建的一个库 ,用于实现断路器
 ### Hystrix 的仪表盘（Dashboard）
 Hystrix可以搜集所有使用HystrixCommand注解的bean，也就是断路器，Dashboard可以显示每个断路器的运行情况。  
 要使用Dashboard，先加  
-groupID=`Dashboardorg.springframework.cloud`   artifactId=`spring-cloud-starter-hystrix-dashboard`   
-然后访问·` hystrix`地址，并设置客户端的/hystrix.stream端点  
+groupID=`Dashboardorg.springframework.cloud`   artifactId=`spring-cloud-starter-hystrix-dashboard`   
+然后别忘了在boot程序加上@EnableHystrixDashboard注解  
+然后访问·` hystrix`地址，并设置客户端的/hystrix.stream端点  
 **结果能正常访问，但是怎么设置/hystrix.stream端点，前缀是什么？** 
 **就设置你使用@HystrixCommand微服务地址**  
 
@@ -118,7 +127,8 @@ Turbine是一个应用程序，它将使用的/hystrix.stream端点汇总到一�
 
 ## 客户端负载平衡：Ribbon
 含义:Ribbon是一个客户端负载均衡器，他可以让你对HTTP和TCP的客户端有很大的控制权。  
-Ribbon一个重要的概念是客户端的命名，每一个平衡负载器是组件的一部分
+Ribbon一个重要的概念是客户端的命名，每一个平衡负载器是组件的一部分  
+目前能知道的：使用Ribbon的http客户端，在处理请求时，会把多个请求分发到同个服务，不同端口的微服务上,实现负载均衡
 ## 如何引入Ribbon 
 使用groupID=`org.springframework.cloud` and artifactId=`spring-cloud-starter-ribbon`
 ## 定制你的Ribbon Client（代码配置）
@@ -192,8 +202,8 @@ _______________________________________________________________________
 TODO 将代码复制到项目中并加上注释  
 
 ## Feign的Hystrix支持
-如果Hystrix类class path上，那么默认情况下，Feign所有的方法都用断路器来包装。  
-如果想禁用Feign上的Hystrix支持的话，请设置属性`feign.hystrix.enabled=false`  
+如果Hystrix类class path上，那么默认情况下，Feign所有的方法都用断路器来包装。  
+如果想禁用Feign上的Hystrix支持的话，请设置属性`feign.hystrix.enabled=false`  
 好像有说要具体禁用每一个客户端的Hystrix应该怎么办，现在还不是很理解，之后再试试看  
 TODO 代码记得补充  
 
@@ -202,7 +212,16 @@ Feign Hystrix支持在线路出现问题的时候使用回退，执行其他方�
 要开启这个功能的话，只需要在@FeignClient注解上加一个fallback属性，属性值填回退的类名  
 如果想要知道回退的原因是什么，你可以在创建回退类时实现一个FallbackFactory<HystrixClient>接口，在代码里面处理    
 TODO 代码补上哦   
-PS：回退的功能有一定限制，目前不支持`com.netflix.hystrix.HystrixCommand` and `rx.Observable`  
+PS：回退的功能有一定限制，目前不支持`com.netflix.hystrix.HystrixCommand` and `rx.Observable`  、
+想开启Hystrix的Dashboard的话，需要加两个依赖（上文找），然后在boot程序上加两个注解
+	
+	@EnableCircuitBreaker
+	//该注解可以启用HystrixDashboard支持
+	@EnableHystrixDashboard
+	
+## Fegin的Ribbon支持
+其实吧，Fegin默认是支持Ribbon的。不然的话，Fegin怎么根据@FeginClient的value找到Eureka的实例地址来请求的？
+
 
 
 ## .Feign日志
@@ -212,6 +231,11 @@ Feign会为每一个Feign客户端创建一个记录器？？默认情况下，�
 `logging.level.project.user.UserClient: DEBUG`  on `application.yml`  
 你可以为每一个客户端配置 Logger.Level对象来告诉Feign要记录多少日志
 TODO 代码补上，注释补上
+
+## Fegin的有趣问题
+如果Fegin客户端试图访问一个全部已经挂掉的微服务的话，会报`Load balancer does not have available server for client: xxxx`
+意思就是负载均衡在xxxx客户端不可用。其实吧，你让负载均衡至少正常工作一次，再次访问全挂的微服务就没问题了  。
+也就是说，负载均衡至少需要正常工作一次来初始化它，如果直接让他跑回调方法，它是初始化不了的。。。。大概吧（挠头。。。）
 
 
 # Zuul 路由
@@ -278,6 +302,21 @@ PS:在转发的请求头中，X-Forwarded-Host会被添加进去，要关闭它�
 Zuul默认使用的http客户端是apache的httpclient，而不是Ribbon的RestClient。
 如果要替换使用为RestClient或者okhttp3.OkHttpClient。
 可以设置`ribbon.restclient.enabled = true`或者`ribbon.okhttp.enabled = true`
+## 路由端点
+如果你在你的boot Actuator 程序中加上了@EnableZuulProxy这个注解，则应用程序会开放一个断点`/routes`.
+get请求该端点会返回一个路由列表。如果是post请求的话会强制刷新所有路由列表。
+其实吧，路由应该响应服务列表的改变，post请求让它立即响应罢了
+
+## 处理旧端点和本地转发
+迁移现有的应用程序和api时，一个重要的事就是处理旧的端点，常见的处理方式是慢慢用不同的实现来替换他们。
+用Zuul就可以做到这一点，处理来自旧端点客户端所有流量，并将一些请求重定向到新端点。
+其他看不懂
+
+## 通过Zuul上传文件
+如果你使用了`@EnableZuulProxy`就可以用正常的代理路径来上传文件，只要文件很少的话，就可以正常工作。  
+对于大文件来说，在`/zuul/*`中有一条绕过Spring DispatcherServlet（避免多部分处理）的替代路径。
+即`zuul.routes.customers = / customers / **`，则可以将大文件上传到该路径
+
 
 ## http头信息和Cookie
 有时候，你不希望一些敏感的头信息泄露到外部服务器中?(什么是外部服务器)
