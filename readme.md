@@ -278,3 +278,17 @@ PS:在转发的请求头中，X-Forwarded-Host会被添加进去，要关闭它�
 Zuul默认使用的http客户端是apache的httpclient，而不是Ribbon的RestClient。
 如果要替换使用为RestClient或者okhttp3.OkHttpClient。
 可以设置`ribbon.restclient.enabled = true`或者`ribbon.okhttp.enabled = true`
+
+## http头信息和Cookie
+有时候，你不希望一些敏感的头信息泄露到外部服务器中?(什么是外部服务器)
+你可以指定一个头列表，作为路由配置的一部分，来忽略它。
+建议你至少把	“Set-Cookie”和“Cookie”设置为忽略的头。
+配置大致如下
+
+	zuul:
+  	  routes:
+    	users:
+	      path: /myusers/**
+	      sensitiveHeaders: Cookie,Set-Cookie,Authorization
+	      url: https://downstream
+
