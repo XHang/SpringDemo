@@ -6,7 +6,8 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 @EnableZuulProxy
-@EnableEurekaClient
+//去掉该注解，Zuul不依赖Eureka服务端来发现微服务
+//@EnableEurekaClient
 //不加这个注解居然还报错了
 //Unable to start EmbeddedWebApplicationContext due to missing EmbeddedServletContainerFactory bean.
 @SpringBootApplication

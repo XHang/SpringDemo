@@ -5,6 +5,9 @@
 # Eureka服务器的连接地址,前面的admin:12345@是嵌入了身份凭证，服务器可以用于身份凭证
  eureka:
    client:
+# 不要试图连接Eureka服务端
+      registerWithEureka: false
+      fetchRegistry: false
       serviceUrl:
         defaultZone: http://localhost:8761/eureka/
 # 告诉Eureka服务端这边客户端的地址
@@ -21,28 +24,46 @@
  spring:
    application:
       name: ZuulServer
+# 不使用Ribbon来发现微服务以及请求微服务的情况下，使用url转发的超时设置
  zuul:
+  host.socket-timeout-millis: 60000
+  host.connect-timeout-millis: 10000
   routes:
+    game:
+      path: /**/game/**
+      sensitiveHeaders: 
+      custom-sensitive-headers: true
+#      serviceId: game
+      url: http://192.168.21.160:8089
+    user:
+# 如果你配成/user/**这样的话，只有端口地址后面带user才可以找到映射路径,这样的配的话，只有url地址含有/user/字符即可正确映射
+      path: /**/user/**
+      sensitiveHeaders: 
+      custom-sensitive-headers: true
+#      serviceId: user
+      url: http://192.168.21.160:3333
     shop:
       path: /**/shop/**
-      serviceId: shop
-    game:
-# 如果你配成/game/**这样的话，只有端口地址后面带game才可以找到映射路径,这样的配的话，只有url地址含有/game/字符即可正确映射
-      path: /**/game/**
-      serviceId: game
-    eurekaclient:
-      path: /eurekaclient/**
-#    加以下两个，Zuul接收到的Cookie等头信息才能传递到下一个中间件，才可能到达目的地      
       sensitiveHeaders: 
-      custom-sensitive-headers: true  
-      serviceId: EurekaClient 
+      custom-sensitive-headers: true
+#      serviceId: user
+      url: http://192.168.21.160:7896
+# 放在后面表示除了上面配置的路由之外，所有地址都转发到这个路由
+    all:
+      path: /**/*
+      sensitiveHeaders: 
+      custom-sensitive-headers: true
+      url: http://192.168.21.160:8089
 #   开启debug模式
  logging:
     level:
       com.netflix: DEBUG
-# 断路器超时 10秒
- hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds:  10000
+# 断路器超时 60秒
+ hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds:  60000
 # Ribbon负载均衡超时3秒  读取超时 1分钟
  ribbon:
-  ConnectTimeout: 3000
+  ConnectTimeout: 30000
   ReadTimeout: 60000
+#  禁用Eureka
+  eureka:
+    enabled: false
