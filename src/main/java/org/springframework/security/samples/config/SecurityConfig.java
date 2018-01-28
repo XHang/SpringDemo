@@ -1,26 +1,34 @@
+
+
 package org.springframework.security.samples.config;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.configuration.*;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 /**
- * 该类是一个springsecurity配置类
+ * spring boot 的springsecurity安全配置类
  * @author Mr-hang
- * 它可以实现以下功能：
- * 1：要求对应用程序中的每个URL进行身份验证,如果没登陆，跳到登陆页面
- * 2：生成一个登陆的表单(简单的html表单)
- * 3：允许使用用户名和密码来作为基本验证
- * 4：允许用户注销
- * 5：CSRF攻击预防
- * 。。。。
- *
+ * 功能如下：
+ * 	与/ css / **和/ index匹配的请求是完全可访问的
+ * 	匹配/ user / **的请求要求用户进行身份验证，?并且必须关联到USER角色	?
+ * 使用自定义登录页面和登录失败的页面
+ * 启用基于表单的身份验证
  */
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	//@Autowired写在这里其实跟写在set方法所起的作用是一样的，就是为方法的参数自动注入对象
-	//configureGlobal方法名可以随意取
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().withUser("user").password("password").roles("USER");
-    }
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests().antMatchers("/css/**", "/index").permitAll().antMatchers("/user/**").hasRole("USER").and().formLogin()
+		.loginPage("/login").failureUrl("/login-error");	
+	}
+
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		auth
+			.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER");
+	}
 }

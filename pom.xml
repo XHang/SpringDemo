@@ -2,11 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
-  <artifactId>spring-security-samples-xml-insecure</artifactId>
+  <artifactId>spring-security-samples-boot-insecure</artifactId>
   <version>4.2.3.RELEASE</version>
-  <packaging>war</packaging>
-  <name>spring-security-samples-xml-insecure</name>
-  <description>spring-security-samples-xml-insecure</description>
+  <name>spring-security-samples-boot-insecure</name>
+  <description>spring-security-samples-boot-insecure</description>
   <url>http://spring.io/spring-security</url>
   <organization>
     <name>spring.io</name>
@@ -31,9 +30,6 @@
     <developerConnection>scm:git:git://github.com/spring-projects/spring-security</developerConnection>
     <url>https://github.com/spring-projects/spring-security</url>
   </scm>
-  <properties>
-    <m2eclipse.wtp.contextRoot>/sample</m2eclipse.wtp.contextRoot>
-  </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -47,22 +43,16 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>javax.servlet.jsp.jstl</groupId>
-      <artifactId>javax.servlet.jsp.jstl-api</artifactId>
-      <version>1.2.1</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
       <scope>compile</scope>
+      <version>1.4.4.RELEASE</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.taglibs</groupId>
-      <artifactId>taglibs-standard-jstlel</artifactId>
-      <version>1.2.1</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>1.7.7</version>
-      <scope>compile</scope>
+      <version>1.4.5.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -72,28 +62,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>jsp-api</artifactId>
-      <version>2.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.0.1</version>
-      <scope>provided</scope>
-    </dependency>
-     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.1.2</version>
-      <scope>runtime</scope>
-    </dependency>
-    <!--
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -109,92 +80,55 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy</artifactId>
-      <version>2.4.4</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy-all</artifactId>
-      <version>2.4.4</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.gebish</groupId>
-      <artifactId>geb-spock</artifactId>
-      <version>0.10.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-htmlunit-driver</artifactId>
-      <version>2.44.0</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>1.7.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.spockframework</groupId>
-      <artifactId>spock-core</artifactId>
-      <version>0.7-groovy-2.0</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>junit-dep</artifactId>
-          <groupId>junit</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.spockframework</groupId>
-      <artifactId>spock-spring</artifactId>
-      <version>0.7-groovy-2.0</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>junit-dep</artifactId>
-          <groupId>junit</groupId>
-        </exclusion>
-      </exclusions>
+      <version>1.4.0.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
-    </dependency> -->
-    <!-- springsecurity框架依赖 -->
-  <!-- ... other dependency elements ... -->
+    </dependency>
+    
+    <!-- spring boot 环境下加的Springsecurity依赖   开始-->
   <dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-web</artifactId>
-    <version>4.2.3.RELEASE</version>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-web</artifactId>
+	<version>4.2.3.RELEASE</version>
   </dependency>
   <dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-config</artifactId>
-    <version>4.2.3.RELEASE</version>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-config</artifactId>
+	<version>4.2.3.RELEASE</version>
   </dependency>
-   <!-- springsecurity框架依赖 -->
+  <dependency>
+	<groupId>org.thymeleaf.extras</groupId>
+	<artifactId>thymeleaf-extras-springsecurity4</artifactId>	
+	<version>2.1.2.RELEASE</version>
+  </dependency>
+        <!-- spring boot 环境下加的Springsecurity依赖   结束-->
   </dependencies>
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.3</version>
-        <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
     </plugins>
