@@ -1,67 +1,31 @@
-# 使用springsecurity自定义登录表单
-
-本节将教授大家怎么在springsecurity中自定义自己的登录表单
-
-其实很简单，只需要更改springsecurity的配置。覆盖一个方法，就行了。具体的话可以看代码讲述
-
-顺便贴一个官网对于项目执行过程中发生`将您重定向的次数过多。`的错误
-
-错误产生的情况：未验证用户登录的时候访问被保护的页面。
-
-原因：当用户访问一个需要登录验证后的页面，而用户又没登录的时候,springsecurity会将用户重定向到登录页面。但是问题来了，登录页面要访问它，也是需要登录验证过的，所以就会陷入死循环
-
-动作描述：
-
-- 我们向我们的Web应用程序提出请求
-
-- Spring Security认为我们没有通过身份验证
-
-- 我们被重定向到 **/login**
-
-- 浏览器请求**/login**
-
-- Spring Security认为我们没有通过身份验证
-
-- 我们被重定向到**/login** ...
-
-  为了解决这个问题，我们要教教springsecurity，将/login这个页面设置为任何人都能访问。
-
-  所有，骚年，快去改securityconfig文件吧
-
-配置写好了，这样就行了？不，我们只是配置了登录页面的地址，这个页面怎么编写，怎么跳转，还是需要我们指点一二的，没办法，计算机就是这么笨
-
-编写登录表单页面步骤
-
-1. 编写一个控制器，以便用户访问/login时能经由这个控制器，跳转到登录页面
-
-   事实上，这个控制器我们不需要写了，因为呢，在该项目中，已经引入了一个 **javaconfig/messages**依赖
-
-   这个依赖里面就有一个/login的控制器
-
-   > 事实上，这个控制器是通过WebMvcConfiguration类的addViewControllers方法创建的。
-   >
-   > 通过这个代码：registry.addViewController("/login").setViewName("login");
-   >
-   > 及其简单，不用写控制器，spring自动帮你实现了一个仅有跳转功能的控制器
-
-2. 编写一个登录的html页面
-
-   实际很简单，就是创建一个from表单，使用post提交，提交的地址也是/login，
-
-   post请求里面的数据是一个表单数据，也就是键值对。两个键：username  and  password> 
-
-   > 说起来，登录提交的地址是怎么确定的，只能使用/login吗？
-
-   页面写好了，但是感觉不太漂亮？那是因为css文件被登录拦截了
-
-   骚年，继续改securityconfig文件吧
-
-3. 经过以上的摧残我想你应该就可以运行项目了，enjoy !
+# springsecurity组合mvc使用说明书
 
 
 
+ ## 实验步骤
 
+1. 引入相关依赖包
 
-小提示：登录失败时，不要显示过多的提示信息，比如说显示用户名不存在，说者无心听者有意，
+2. 创建一个springsecurity的java配置
 
-攻击者就会换一个用户名去尝试登录
+3. 仅仅创建一个springsecurity的java配置还不够，项目不知道怎么加载这个配置文件
+
+   所以接下来我们要将该配置注册一下
+
+   1. 创建一个MessageSecurityWebApplicationInitializer类作为项目启动的配置文件
+
+      接下来没什么好做了，启动程序吧。
+
+      啊哈？很奇怪对吧，为什么程序能找到你的包，找到创建的那两个配置类，加载配置？
+
+      其实吧，在本项目中有加一个叫spring-security-samples-javaconfig-messages的依赖
+
+      在这个依赖中，有一个MessageWebApplicationInitializer类，它里面有一个getRootConfigClasses方法里面配置了一个RootConfiguration作为用于配置根应用程序上下文的配置
+
+      再转去RootConfiguration类看下，这个类就配置了@ComponentScan，意思就是扫描该包里面的所有配置类，话说回来，我们之前创建的那两个配置类就在这个包里面，因而自然能扫描到
+
+        >   话说回来，尚且有一事不明，程序是怎么知道MessageWebApplicationInitializer这个类的存在，并加载它的？
+
+   2. 接下来，就是测试下功能正不正常了，实际也没什么需要测试的，就是一个邮箱界面而已
+
+      值得一提的是，我们导入的那个项目中，并没有什么前端页面文件，那是因为所有前端页面文件全部都包含在spring-security-samples-javaconfig-messages依赖中了
