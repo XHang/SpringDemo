@@ -2,10 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
-  <artifactId>spring-security-samples-boot-insecure</artifactId>
+  <artifactId>spring-security-samples-javaconfig-hellomvc</artifactId>
   <version>4.2.3.RELEASE</version>
-  <name>spring-security-samples-boot-insecure</name>
-  <description>spring-security-samples-boot-insecure</description>
+  <packaging>war</packaging>
+  <name>spring-security-samples-javaconfig-hellomvc</name>
+  <description>spring-security-samples-javaconfig-hellomvc</description>
   <url>http://spring.io/spring-security</url>
   <organization>
     <name>spring.io</name>
@@ -30,6 +31,9 @@
     <developerConnection>scm:git:git://github.com/spring-projects/spring-security</developerConnection>
     <url>https://github.com/spring-projects/spring-security</url>
   </scm>
+  <properties>
+    <m2eclipse.wtp.contextRoot>/sample</m2eclipse.wtp.contextRoot>
+  </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -43,16 +47,80 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-thymeleaf</artifactId>
+      <groupId>javax.servlet.jsp.jstl</groupId>
+      <artifactId>javax.servlet.jsp.jstl-api</artifactId>
+      <version>1.2.1</version>
       <scope>compile</scope>
-      <version>1.4.4.RELEASE</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>1.1.0.Final</version>
       <scope>compile</scope>
-      <version>1.4.5.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>5.2.4.Final</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>1.7.7</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>1.7.7</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <version>1.7.7</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.7</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+      <version>4.2.3.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-core</artifactId>
+      <version>4.2.3.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-samples-javaconfig-messages</artifactId>
+      <version>4.2.3.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+      <version>4.2.3.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -62,10 +130,34 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
+      <version>3.1</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.1.2</version>
-      <scope>test</scope>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>opensymphony</groupId>
+      <artifactId>sitemesh</artifactId>
+      <version>2.4.2</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -86,49 +178,31 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-      <version>1.7.7</version>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <version>4.2.3.RELEASE</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-      <version>1.4.0.RELEASE</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
-    
-    <!-- spring boot 环境下加的Springsecurity依赖   开始-->
-  <dependency>
-	<groupId>org.springframework.security</groupId>
-	<artifactId>spring-security-web</artifactId>
-	<version>4.2.3.RELEASE</version>
-  </dependency>
-  <dependency>
-	<groupId>org.springframework.security</groupId>
-	<artifactId>spring-security-config</artifactId>
-	<version>4.2.3.RELEASE</version>
-  </dependency>
-  <dependency>
-	<groupId>org.thymeleaf.extras</groupId>
-	<artifactId>thymeleaf-extras-springsecurity4</artifactId>	
-	<version>2.1.2.RELEASE</version>
-  </dependency>
-        <!-- spring boot 环境下加的Springsecurity依赖   结束-->
   </dependencies>
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
     </plugins>
