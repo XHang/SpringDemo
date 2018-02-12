@@ -219,6 +219,9 @@ PS：回退的功能有一定限制，目前不支持`com.netflix.hystrix.Hystri
 	//该注解可以启用HystrixDashboard支持
 	@EnableHystrixDashboard
 	
+指的一提的是，如果服务在短时间都是抛异常的话，那么在短时间内，一旦线路开了，再访问都不会走正常线路去请求资源了。
+一旦风头过了的话，就会再去正常请求资源
+	
 ## Fegin的Ribbon支持
 其实吧，Fegin默认是支持Ribbon的。不然的话，Fegin怎么根据@FeginClient的value找到Eureka的实例地址来请求的？
 
