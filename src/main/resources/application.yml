@@ -4,9 +4,16 @@ server:
 eureka:
   instance:
     hostname: localhost
+# 隔几秒后去踢下微服务，看看它死了还是活着，默认30s踢一次
+    leaseRenewalIntervalInSeconds: 20
+# 接受信号后间隔多少秒后再没接受到信号，就宣布微服务已死，默认90s
+    lease-expiration-duration-in-seconds: 30
   client:
 # 可以关闭Eureka服务器的自动注册行为
     registerWithEureka: false
     fetchRegistry: false
     serviceUrl:
        defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+# 关闭自我保护,Eureka不会保护已经挂掉的应用
+  server:
+    enable-self-preservation: false
