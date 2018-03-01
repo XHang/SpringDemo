@@ -9,11 +9,13 @@ import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboar
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.web.bind.annotation.RestController;
 
+import fegin.config.FeginConfig;
+
 
 @EnableEurekaClient 
 @RestController
 @SpringBootApplication
-@EnableFeignClients
+@EnableFeignClients(defaultConfiguration=FeginConfig.class)
 @EnableCircuitBreaker
 //该注解可以启用HystrixDashboard支持
 @EnableHystrixDashboard
