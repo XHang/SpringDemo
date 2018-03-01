@@ -2,6 +2,7 @@ package com.ribbon.fallback;
 
 import org.springframework.stereotype.Component;
 
+import com.fegin.model.User;
 import com.ribbon.server.UserClient;
 
 import feign.hystrix.FallbackFactory;
@@ -29,6 +30,11 @@ public class UserFallBack  implements FallbackFactory<UserClient>{
 			public String getXML(String xml) {
 				System.out.println(throwable);
 					return "微服务不可用，抱歉";
+			}
+
+			@Override
+			public String addUser(User user, String type) {
+				return "添加用户失败";
 			}
 		};
 	}

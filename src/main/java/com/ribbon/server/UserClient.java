@@ -1,9 +1,12 @@
 package com.ribbon.server;
 
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fegin.model.User;
 import com.ribbon.fallback.UserFallBack;
 
 
@@ -16,5 +19,16 @@ public interface UserClient {
 	//这个value就是user这个实例对外服务的接口地址
 	@RequestMapping(value="/server/getXml",method=RequestMethod.POST)
 	public String getXML(String xml);
+	
+	
+	/**
+	 * RPC远程调用传对象参数和键值对参数
+	 * @param user
+	 * @param type
+	 * @return
+	 */
+	@RequestMapping(value="/server/addUser")
+	public String addUser(@RequestBody User user,
+										   @RequestParam("type")String type);
 	
 }
