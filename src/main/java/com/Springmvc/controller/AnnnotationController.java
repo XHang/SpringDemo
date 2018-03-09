@@ -3,6 +3,8 @@ package com.Springmvc.controller;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -161,6 +163,20 @@ public class AnnnotationController {
 						+"<body>Don't forget the meeting!</body>"
 				+"</note>";
 	}
-
+	/**
+	 * 把对象转字符串没什么问题，但是要把字符串转成对象。要考虑字符串的格式
+	 * 是json对象，还是集合。
+	 * Spring是怎么判断的，这点令我很好奇
+	 * 毕竟FastJSON对于字符串还得区分是对象还是集合，由程序员手动去判断。
+	 * Spring自然是不用的，那它是如何判断的呢？
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/get")
+	public String  returnUser(@RequestBody User user){
+		System.out.println(user.getPassword());
+		return "OK";
+	}
+	
 }
 
