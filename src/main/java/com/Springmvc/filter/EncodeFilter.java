@@ -25,18 +25,18 @@ public class EncodeFilter  implements Filter{
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
 			throws IOException, ServletException {
+		//执行该过滤方法时，把过滤链request对象替换为自己的request对象
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		filterChain.doFilter(new CharEcnodeRequest(httpServletRequest, encode), response);
 	}
-
+	//过滤器初始化
 	@Override
-	public void init(FilterConfig config) throws ServletException {
+	public void init(FilterConfig config)  {
 		Enumeration<?> e = config.getServletContext().getAttributeNames();
 		while(e.hasMoreElements()){
 			System.out.println(e.nextElement());
 		}
-		
-		
+		//从web.xml读取字符编码配置，如果读取不到，设置默认值为utf-8
 		 encode = config.getInitParameter("charSet");
 		 if(encode == null || "".equals(encode.trim())){
 			 encode = "utf-8";
