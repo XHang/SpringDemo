@@ -1,6 +1,7 @@
 package com.Springmvc.filter;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -8,6 +9,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 可以实现修改Response里面数据的Filter
@@ -29,7 +31,21 @@ public class ModifyResponseFilter  implements Filter{
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
+		HttpServletResponse servletResponse = (HttpServletResponse) response;
+		CustomResponseWapper responseWapper = new CustomResponseWapper(servletResponse);
+		//责任链模式，让下面的过滤器链直至servlet方法，都使用我的response的自定义对象
+		doFilter(request,responseWapper,chain);
+		//责任链返回了，可以拿数据改造送进真正的输出流了
+		byte [] bytes = motifyData(responseWapper);
 		
+	}
+
+	private byte[] motifyData(CustomResponseWapper responseWapper) throws UnsupportedEncodingException {
+		CustomOutputStream  out = (CustomOutputStream) responseWapper.getOutputStream();
+		byte[] bytes =out.getContent();
+		String str = new String(bytes,"utf-8");
+		System.out.println("响应的数据为"+str);
+		return (str+"你的数据被我吃了，哈哈哈").getBytes();
 	}
 
 	@Override
