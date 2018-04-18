@@ -19,5 +19,4 @@ public class UrlMappingController {
 	public String otherMapping(){
 		return "你通过传参数的方式访问到这个方法了";
 	}
-
 }

@@ -34,18 +34,25 @@ public class ModifyResponseFilter  implements Filter{
 		HttpServletResponse servletResponse = (HttpServletResponse) response;
 		CustomResponseWapper responseWapper = new CustomResponseWapper(servletResponse);
 		//责任链模式，让下面的过滤器链直至servlet方法，都使用我的response的自定义对象
-		doFilter(request,responseWapper,chain);
+        chain.doFilter(request,responseWapper);
 		//责任链返回了，可以拿数据改造送进真正的输出流了
 		byte [] bytes = motifyData(responseWapper);
-		
+        response.setContentLength(bytes.length);
+		response.setCharacterEncoding("utf-8");
+		response.setContentType("text/plain");
+        response.getOutputStream().write(bytes);
 	}
 
+    /**
+     * 修改响应的数据
+     * @param responseWapper 响应流包装类
+     * @return 修改后的包装类
+     */
 	private byte[] motifyData(CustomResponseWapper responseWapper) throws UnsupportedEncodingException {
-		CustomOutputStream  out = (CustomOutputStream) responseWapper.getOutputStream();
-		byte[] bytes =out.getContent();
+		byte[] bytes =responseWapper.getContent();
 		String str = new String(bytes,"utf-8");
 		System.out.println("响应的数据为"+str);
-		return (str+"你的数据被我吃了，哈哈哈").getBytes();
+		return (str+"你的数据被我吃了，哈哈哈").getBytes("utf-8");
 	}
 
 	@Override

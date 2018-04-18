@@ -13,8 +13,16 @@
 		<filter-mapping>  
 		    <filter-name>CharacterEncodingFilter</filter-name>  
 	    	<url-pattern>/*</url-pattern>  
-		</filter-mapping>  
-  <servlet>
+		</filter-mapping>
+    <filter>
+        <filter-name>ModifyResponseFilter</filter-name>
+        <filter-class>com.Springmvc.filter.ModifyResponseFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ModifyResponseFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <servlet>
 <!-- 编码过滤器 -->
 <!--SpringMVC的标准配置-->
     <servlet-name>DispatcherServlet</servlet-name>

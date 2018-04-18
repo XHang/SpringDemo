@@ -3,6 +3,7 @@ package com.Springmvc.controller;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -177,6 +178,13 @@ public class AnnnotationController {
 		System.out.println(user.getPassword());
 		return "OK";
 	}
+
+	@ResponseBody
+	@RequestMapping("/testPrintlnWrite")
+	public void testPrintlnWrite(HttpServletResponse response) throws IOException {
+		response.getWriter().print("打印流输出数据了");
+	}
+
 	
 }
 

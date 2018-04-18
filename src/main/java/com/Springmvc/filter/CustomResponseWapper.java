@@ -1,6 +1,7 @@
 package com.Springmvc.filter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletOutputStream;
@@ -17,10 +18,23 @@ import javax.servlet.http.HttpServletResponseWrapper;
  */
 public class CustomResponseWapper extends HttpServletResponseWrapper{
 
-
+	/**
+	 * 重点是实现输出流，调用方想用输出流写东西的话，就可以拦截了
+	 */
 	private CustomOutputStream out;
-	
-	private PrintWriter writer;
+
+	//response里面维护一个字节输出流，充当容器，打印流和字节输出流都把数据输入到该容器里面
+	private ByteArrayOutputStream container;
+
+	/**
+	 * 重点是实现打印流，这样调用方想用打印流写东西的话，就会输入到我们的容器里面了
+	 * 但是我们不知道调用方想用打印流哪一个方法写入数据，目前只能祈祷调用方用printf(String str)
+	 * 的方法写数据了
+	 * 其实要解决也简单吧，打印流无论写入什么数据终究会调用某个基本方法。
+	 * 只要魔改它就行了
+	 */
+	private CustomPrintWriter printWriter;
+
 
     /**
      * 从使用上的角度来讲，其实没必要传response
@@ -29,48 +43,55 @@ public class CustomResponseWapper extends HttpServletResponseWrapper{
      */
 	public CustomResponseWapper(HttpServletResponse response) {
 		super(response);
-		out = new CustomOutputStream();
-		writer = new PrintWriter(out);
-	}
-	
-	
+		container = new ByteArrayOutputStream();
+		out = new CustomOutputStream(container);
+		printWriter = new CustomPrintWriter(container);
 
-	
-	
-	
+	}
+
+	@Override
+	public PrintWriter getWriter()  {
+		return this.printWriter;
+	}
 
 	@Override
 	public ServletOutputStream getOutputStream()  {
 		return this.out;
 	}
 
-	@Override
-	public PrintWriter getWriter()  {
-		return this.writer;
+	public byte[] getContent(){
+		return this.container.toByteArray();
 	}
+
 }
 
 class CustomOutputStream extends ServletOutputStream{
 
-	//字节输出流，充当容器
-	private ByteArrayOutputStream container = new ByteArrayOutputStream();
-	
+	private ByteArrayOutputStream container;
+	public CustomOutputStream(ByteArrayOutputStream out){
+		container = out;
+	}
 	//将其他调用方的数据写到容器里面
 	@Override
 	public void write(int b)  {
 		container.write(b);
 	}
-
-	/**
-	 * 获取该输入出流里面的字节数组
-	 * 其实只是拿容器里面的东西
-	 * @return byte[] 返回的字节数组
-	 */
-	public byte[] getContent(){
-		return this.container.toByteArray();
-	}
-
-	
 }
 
 
+class CustomPrintWriter extends PrintWriter{
+
+	private ByteArrayOutputStream out;
+	@Override
+	public void print(String s) {
+		try {
+			out.write(s.getBytes("utf-8"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	public CustomPrintWriter(ByteArrayOutputStream out){
+		super(out);
+		this.out = out;
+	}
+}
