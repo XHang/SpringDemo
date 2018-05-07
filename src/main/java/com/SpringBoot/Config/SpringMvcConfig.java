@@ -1,12 +1,18 @@
 package com.SpringBoot.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.SpringBoot.Interceptor.InterceptorDemo;
+import com.SpringBoot.filter.FilterDemo;
 /**
  * SpringMVC的配置类
  * CallableProcessingInterceptor
@@ -38,6 +44,22 @@ public class SpringMvcConfig  extends WebMvcConfigurerAdapter{
 	public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
 		//设置默认异步超时时间为11s
 		configurer.setDefaultTimeout(11000L);
+	}
+	
+	/**
+	 * 注册一个过滤器，只在SpringBoot环境下才有效
+	 * @return
+	 */
+	@Bean 
+	public FilterRegistrationBean filterRegistrationBean(){
+		FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+		List<String> urlPatterns = new ArrayList<String>();
+		//匹配该域名下面的所有URL
+		urlPatterns.add("/*");
+		FilterDemo filter = new FilterDemo();
+		registrationBean.setFilter(filter);
+		registrationBean.setUrlPatterns(urlPatterns);
+		return registrationBean;
 	}
 
 }
