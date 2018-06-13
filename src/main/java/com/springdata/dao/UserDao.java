@@ -1,0 +1,22 @@
+package com.springdata.dao;
+
+import com.springdata.bean.User;
+import org.springframework.data.repository.CrudRepository;
+
+import java.util.List;
+
+/**
+ * dao类，实现用户对象的一系列数据库操作
+ * 只需要定义接口，SpringData在运行时自动生成对应的实现类
+ * 继承CrudRepository接口会自动继承里面的CURD方法
+ */
+public interface UserDao  extends CrudRepository<User,Long> {
+    /**
+     * 根据姓名查找用户记录
+     * @param userName 用户名
+     * @return
+     */
+    //使用规范的方法名，可以让SpringData识别到，自动生成sql语句
+    List<User> findByUserName(String userName);
+
+}

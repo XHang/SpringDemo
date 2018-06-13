@@ -3,17 +3,29 @@
   <groupId>SpringDataJpa</groupId>
   <artifactId>SpringDataJpa</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.0.2.RELEASE</version>
+  </parent>
   <dependencies>
+      <!--Spring Data JPA 的核心依赖-->
       <dependency>
-          <groupId>org.springframework.data</groupId>
-          <artifactId>spring-data-jpa</artifactId>
-          <version>2.0.7.RELEASE</version>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-data-jpa</artifactId>
       </dependency>
-	<dependency>
-		<groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <version>4.12</version>
-	</dependency>
+      <!--数据库依赖，可替换为其他数据库的驱动包-->
+      <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+      </dependency>
+      <!-- Test相关依赖，默认帮你自动添加JUnit，Spring Test的依赖-->
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-test</artifactId>
+          <scope>test</scope>
+      </dependency>
+
   </dependencies>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
@@ -27,6 +39,34 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+        <!--Boot的Maven插件，可以提供 spring-boot:run等命令-->
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
     </plugins>
   </build>
+    <repositories>
+        <repository>
+            <id>spring-releases</id>
+            <name>Spring Releases</name>
+            <url>https://repo.spring.io/libs-release</url>
+        </repository>
+        <repository>
+            <id>org.jboss.repository.releases</id>
+            <name>JBoss Maven Release Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-releases</id>
+            <name>Spring Releases</name>
+            <url>https://repo.spring.io/libs-release</url>
+        </pluginRepository>
+    </pluginRepositories>
+   <!-- <properties>
+        <start-class>Application</start-class>
+    </properties>-->
 </project>
