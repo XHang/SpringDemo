@@ -262,9 +262,32 @@ Java的配置：
 
 1. 建立一个拦截器类，实现HandlerInterceptor 
 2. 写一个配置类，继承`WebMvcConfigurerAdapter`,此配置类加`@Configure`
-3. 根类（boot主要运行的类）加上@SpringBootApplication注解   or   @CompScreen  or  @Import导入配置类	
+	. 根类（boot主要运行的类）加上@SpringBootApplication注解   or   @CompScreen  or  @Import导入配置类	
 
+# 九：Spring Boot出现的BUG
 
+1. 偶尔运行main方法出现找不到此类`org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer`
+
+   解决方案：可能是代码未完全编译，需要将项目clean 然后compile
+
+2. `Spring-Boot:run`运行报找不到主类或者
+   `Unable to find a single main class from the following candidates`
+
+   解决方案：
+
+   1. 确保你的代码clean 然后compile过了
+
+         2. 在pom文件添加配置
+
+            ```
+            <properties>
+                    <start-class>主类的完全限定名</start-class>
+            </properties>
+            ```
+
+            
+
+   
 
 
 ​		
