@@ -87,18 +87,58 @@
    目的：Spring Boot的插件，可以支持以下Maven命令
 
       	1. `spring-boot:repackage `
-    	2. `spring-boot:run `
-    	3. `spring-boot:start `
-    	4. `spring-boot:build-info `
+   		2. `spring-boot:run `
+   		3. `spring-boot:start `
+   		4. `spring-boot:build-info `
 
 2. 构建自己的Dao接口类，必须继承自Repository类或者Repository类的子类
 
 3. 构建启动器。配置一个Bean `CommandLineRunner`，配置方法里面写CURD示例程序
 
 4. 运行主程序，或者`Spring-boot:run`
-注：1. 由于依赖项里面默认添加了h2数据库,所以SpringBoot里面默认配置了h2数据库的连接
 
-​	2. 
+  > 注：由于依赖项里面默认添加了h2数据库,所以SpringBoot里面默认配置了h2数据库的连接
+
+番外篇：将项目改造为使用Pg数据库来经常存储
+
+1. 添加PG数据库的依赖
+
+   ```
+   <dependency>
+             <groupId>org.postgresql</groupId>
+             <artifactId>postgresql</artifactId>
+             <version>42.2.2.jre7</version>
+    </dependency>
+   ```
+
+2. 添加关于数据库的配置
+
+   在resources文件夹里面创建一个文件`application.properties` ,里面填充一下内容
+
+   ```
+   spring.jpa.hibernate.ddl-auto=create
+   spring.datasource.url=jdbc:postgresql://localhost:5432/postgres
+   spring.datasource.username=postgres
+   spring.datasource.password=super
+   ```
+
+   然后在原来的基础上运行程序吧，没错，就这么简单
+
+   > 才怪，BUG记录贴
+   >
+   > 1. 启动时报` Method org.postgresql.jdbc.PgConnection.createClob() is not yet implemented`
+   >
+   >    但是此错误抛出后，程序继续运行。
+   >
+   >    这是一个JBOSS社区广为人知的BUG,它存在于`Spring-Boot 2.0.0.RC1 `之前或者更高的版本中
+   >
+   >    需要在`application.properties`文件追加此配置
+   >
+   >    `spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults= false`
+   >
+   >    这段配置将禁用加载所有元数据，包括列的注释等等。
+
+  
 
 # 三：JPA规范
 
@@ -150,7 +190,19 @@ JPA规范的特点
 | @NamedQueries      | 指定命名查询的列表。                                         |
 | @NamedQuery        | 指定使用静态名称的查询。                                     |
 
-   
+   # 四：Spring Data JPA配置
+
+一般`Spring Data JPA`的配置都是写在resources文件夹里面的`application.properties`
+
+有用的配置如下
+
+| 配置代码                 | 作用    |
+| ------------------------ | ------- |
+| spring.jpa.show-sql=true | 打印sql |
+
+
+
+
 
    
 

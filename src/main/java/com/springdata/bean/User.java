@@ -1,15 +1,13 @@
 package com.springdata.bean;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * User实体类对象，与数据库的User表是对应的
  */
 //此注解表示此类是跟数据库有关联的实体类，由于没有加@Table注解，假设数据库的表名就叫User吧
 @Entity
+@Table(name = "_user")
 public class User {
 
     /**

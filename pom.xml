@@ -19,6 +19,11 @@
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
       </dependency>
+      <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <version>42.2.2</version>
+      </dependency>
       <!-- Test相关依赖，默认帮你自动添加JUnit，Spring Test的依赖-->
       <dependency>
           <groupId>org.springframework.boot</groupId>
