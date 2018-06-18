@@ -2,12 +2,16 @@ package com;
 
 import com.springdata.bean.User;
 import com.springdata.dao.UserDao;
+import com.springdata.dao.UserPagingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 @SpringBootApplication
 public class SpringDataApplication {
@@ -23,43 +27,71 @@ public class SpringDataApplication {
      * @return
      */
     @Bean
-    public CommandLineRunner demo(UserDao repository) {
+    public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao) {
+        //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
-            // save a couple of Users
-            repository.save(new User("Jack", "Bauer"));
-            repository.save(new User("Chloe", "O'Brian"));
-            repository.save(new User("Kim", "Bauer"));
-            repository.save(new User("David", "Palmer"));
-            repository.save(new User("Michelle", "Dessler"));
-
-            // fetch all Users
-            log.info("Users found with findAll():");
-            log.info("-------------------------------");
-            for (User User : repository.findAll()) {
-                log.info(User.toString());
-            }
-            log.info("");
-
-            // fetch an individual User by ID
-            repository.findById(1L)
-                    .ifPresent(User -> {
-                        log.info("User found with findById(1L):");
-                        log.info("--------------------------------");
-                        log.info(User.toString());
-                        log.info("");
-                    });
-
-            // fetch Users by last name
-            log.info("User found with findByLastName('Bauer'):");
-            log.info("--------------------------------------------");
-            repository.findByUserName("Bauer").forEach(bauer -> {
-                log.info(bauer.toString());
-            });
-            // for (User bauer : repository.findByLastName("Bauer")) {
-            // 	log.info(bauer.toString());
-            // }
-            log.info("");
+            saveUser(repository);
+            queryUser(repository);
+            queryUserByPaging(userPagingDao);
         };
     }
+
+    /**
+     * 保存对象
+     * @param repository
+     */
+    private void saveUser(UserDao repository){
+        // save a couple of Users
+        repository.save(new User("Jack", "Bauer"));
+        repository.save(new User("Chloe", "O'Brian"));
+        repository.save(new User("Kim", "Bauer"));
+        repository.save(new User("David", "Palmer"));
+        repository.save(new User("Michelle", "Dessler"));
+
+        for (int i=0;i<100;i++){
+            repository.save(new User("张哥第"+i+"儿子", "ignore"));
+        }
+
+    }
+
+    private void queryUser(UserDao repository){
+        // fetch all Users  取所有用户
+        log.info("Users found with findAll():");
+        log.info("-------------------------------");
+        for (User User : repository.findAll()) {
+            log.info(User.toString());
+        }
+        log.info("");
+        // fetch an individual User by ID  通过用户ID取得单独的用户
+        repository.findById(1L)
+                .ifPresent(User -> {
+                    log.info("User found with findById(1L):");
+                    log.info("--------------------------------");
+                    log.info(User.toString());
+                    log.info("");
+                });
+
+        // 通过名称取到用户
+        log.info("User found with findByLastName('Bauer'):");
+        log.info("--------------------------------------------");
+        repository.findByUserName("Bauer").forEach(bauer -> {
+            log.info(bauer.toString());
+        });
+        //下面的代码和上面的一样
+        // for (User bauer : repository.findByLastName("Bauer")) {
+        // 	log.info(bauer.toString());
+        // }
+    }
+
+    private void queryUserByPaging( UserPagingDao pagingDao){
+        Page<User> userPage = pagingDao.findAll(PageRequest.of(1,20 ));
+        System.out.println("查询出来的总记录有"+userPage.getTotalElements());
+        System.out.println("总共有"+userPage.getTotalPages()+"页");
+        System.out.println("当前为第"+userPage.getNumber()+"页");
+        System.out.println("本页有"+ userPage.getSize()+"记录数");
+        userPage.forEach((args)->System.out.println("当前用户名是"+args.getUserName()));
+    }
 }
+
+
 

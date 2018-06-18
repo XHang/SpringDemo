@@ -19,4 +19,6 @@ public interface UserDao  extends CrudRepository<User,Long> {
     //使用规范的方法名，可以让SpringData识别到，自动生成sql语句
     List<User> findByUserName(String userName);
 
+
+
 }

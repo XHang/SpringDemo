@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN"   xmlns:xsd="http://logging.apache.org/log4j/2.0/config"  packages=" com.QuickStart.Example.QuickStartLog">
+    <Properties>
+        <Property  name="pattern"> ${result}  哈哈  %r [%t] %-5p %c - %m%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout charset="utf-8" pattern=" ${pattern}"/>
+        </Console>
+
+        <File name="File" fileName="ahaah.log">
+            <PatternLayout>
+                <pattern> %d %p %C{1.} [%t] %m%n</pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.QuickStart"   level="info"   additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+    <script>
+    </script>
+</Configuration>
