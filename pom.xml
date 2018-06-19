@@ -15,8 +15,6 @@
             <version>4.9</version>
             <scope>import</scope>
         </dependency>
-        
-        
         <dependency>
             <!-- Import dependency management from Spring Boot -->
             <groupId>org.springframework.boot</groupId>
@@ -30,9 +28,6 @@
   			<artifactId>h2</artifactId>
   			<version>1.4.195</version>
 		</dependency>
-
-
-
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -44,15 +39,9 @@
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+    </dependency>
   </dependencies>
   <build>
     <finalName>SpringBootExample</finalName>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
-    </plugins>
   </build>
 </project>
