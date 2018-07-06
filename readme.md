@@ -27,17 +27,17 @@
 如果想玩下@ResponseBody的效果，尝试用以下两个url    
 `http://127.0.0.1:8080/SpringMVC/responseExample`    
  `http://127.0.0.1:8080/SpringMVC/getString.do`  
- 
+
  想玩下拦截器？随便哪个网址都可以啦  
- 
+
  想看一下高端大气上档次的rest请求？  
  输入网址：`http://localhost:8080/SpringMVC/rest/参数值/参数值`  
  可以OK  
- 
+
  想看一下用其他方式访问控制器方法？  
  骚年，点击这个链接吧`http://localhost:8080/SpringMVC/mapping?method=otherMapping`  
  其实就是要用参数来指定访问的是哪一个方法。毫无卵用的样子
- 
+
  什么，想看下四种跳转方式，少年，接刀
  NO1:使用request对象forword=`http://localhost:8080/SpringMVC/requestForWord`  
  NO2:使用response对象重定向=`http://localhost:8080/SpringMVC/responseRedirection`  
@@ -60,14 +60,14 @@
 PS:  
 		
 	<plugin>
-          <groupId>org.apache.tomcat.maven</groupId>
-          <artifactId>tomcat7-maven-plugin</artifactId>
-          <version>2.2</version>
-          <configuration>
-          	<warSourceDirectory>WebRoot</warSourceDirectory>
-          </configuration>
+	      <groupId>org.apache.tomcat.maven</groupId>
+	      <artifactId>tomcat7-maven-plugin</artifactId>
+	      <version>2.2</version>
+	      <configuration>
+	      	<warSourceDirectory>WebRoot</warSourceDirectory>
+	      </configuration>
   </plugin> 
-  
+
 可以设置项目用tomcat插件运行，其中warSourceDirectory的配置指定的是运行的web路径
 
 ## 疑难解答
@@ -78,9 +78,43 @@ PS:
 1. 什么是jsonp？其实就是用来跨域的请求数据类型，ajax的daatType加了jsonp就可以实现跨域。
 
 2. 吐槽，对于跨域请求，其实已经有请求头来设置跨域了，再弄个jsonp实在是多次一举。
- 
- 
+
+
  3. 挖坑，待定
- 
+
 ##  web端知识点
 1. request.getParameter("参数")  如果参数没有的话，返回null；
+
+## Spring MVC 接受特殊类型
+
+1. 日期类型
+
+   如果你只是在参数上写接受一个日期类型，没有任何处理。
+
+   那么前端需要怎么传呢？
+
+   可以在data里面传一个date对象，即
+
+   ```
+    $.ajax({
+            url:getRoot()+"receiveDate",
+            data:{
+                date:new Date()
+            },
+            success:function (data) {
+            alert("接受到后台传输的数据是"+data);
+           }
+        })
+   ```
+
+   实际上，这个日期参数是个标准日期的字段，格式类型为：
+
+   `Fri Jul 06 2018 11:27:09 GMT+0800 (中国标准时间)`
+
+   当然需要经过URL转码才能发过去。
+
+   这种日期格式可以被SpringMVC接受。
+
+   当然这种方式很原始，现在更多的是弄一个转换器，来转对应的参数
+
+2. 
