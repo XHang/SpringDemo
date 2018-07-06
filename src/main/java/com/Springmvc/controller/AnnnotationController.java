@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -184,6 +185,13 @@ public class AnnnotationController {
 	public void testPrintlnWrite(HttpServletResponse response) throws IOException {
 		response.getWriter().print("打印流输出数据了");
 	}
+
+	@RequestMapping("/receiveDate")
+	public void testReceivreDate(Date date){
+		System.out.println("接受到的日期是"+date);
+
+	}
+
 
 	
 }
