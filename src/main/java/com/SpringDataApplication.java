@@ -26,7 +26,7 @@ public class SpringDataApplication {
      * @param repository
      * @return
      */
-    @Bean
+   /* @Bean
     public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao) {
         //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
@@ -34,7 +34,7 @@ public class SpringDataApplication {
             queryUser(repository);
             queryUserByPaging(userPagingDao);
         };
-    }
+    }*/
 
     /**
      * 保存对象

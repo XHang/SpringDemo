@@ -34,6 +34,12 @@ public class User {
 
     private String password;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "org_id")
+    private Org org;
+
+
+
     public String getUserName() {
         return userName;
     }

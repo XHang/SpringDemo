@@ -9,6 +9,12 @@
     <version>2.0.2.RELEASE</version>
   </parent>
   <dependencies>
+      <!--启动web支持模块-->
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+
       <!--Spring Data JPA 的核心依赖-->
       <dependency>
           <groupId>org.springframework.boot</groupId>
@@ -23,6 +29,12 @@
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
           <version>42.2.2</version>
+      </dependency>
+      <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>5.1.6</version>
+
       </dependency>
       <!-- Test相关依赖，默认帮你自动添加JUnit，Spring Test的依赖-->
       <dependency>
