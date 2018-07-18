@@ -14,10 +14,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @SpringBootApplication
+@EnableTransactionManagement
 public class SpringDataApplication {
     private static final Logger log = LoggerFactory.getLogger(SpringDataApplication.class);
 
@@ -31,10 +39,10 @@ public class SpringDataApplication {
      * @return
      */
     @Bean
-    public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao) {
+    public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao,PlatformTransactionManager pa) {
         //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
-            dynamicquery(repository);
+            streamQuery(repository,pa);
         };
     }
 
@@ -105,6 +113,28 @@ public class SpringDataApplication {
         int eleNumber = users.getNumberOfElements();
        int size =  users.getSize();
         return ;
+    }
+
+    /**
+     * 演示流式查询结果
+     * 流式对象，其实是JDK8 lambda里面的一个小东西
+     * @param dao
+     */
+    private void streamQuery(UserDao dao,PlatformTransactionManager platformTransactionManager){
+        saveUser(dao);
+        //编程式开启事务
+        TransactionTemplate transactionTemplate = new TransactionTemplate(platformTransactionManager);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                Stream<User> stream = dao.findByUserNameLike("%张哥%");
+                stream.forEach((args)->System.out.println("遍历出来的用户名是"+args.getUserName()));
+                //stream里面包含了一个底层的资源，不用时需要关闭
+                System.out.println("查询结束");
+                stream.close();
+            }
+        });
+
     }
 }
 

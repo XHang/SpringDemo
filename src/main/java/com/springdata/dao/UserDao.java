@@ -7,6 +7,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * dao类，实现用户对象的一系列数据库操作
@@ -30,7 +31,19 @@ public interface UserDao  extends CrudRepository<User,Long> {
      */
     Page<User> findByUserName(String userName, Pageable pageable);
 
+    /**
+     * 片段式查询结果
+     * @param passWord
+     * @param pageable
+     * @return
+     */
     Slice findByPassword(String passWord, Pageable pageable);
+
+    /**
+     * 流式查询结果
+     * @return
+     */
+    Stream<User> findByUserNameLike(String userName);
 
 
 

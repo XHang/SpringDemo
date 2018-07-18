@@ -200,6 +200,58 @@ JPA规范的特点
 | ------------------------ | ------- |
 | spring.jpa.show-sql=true | 打印sql |
 
+# 五：Spring data jpa的一些问题
+
+当Spring data jpa 查询出一个对象后，直接将整个对象返回到前端的话，有可能会报一个Josn序列化错误。
+
+如果查询的对象关联了N多的其他对象的话，出现问题的可能性会更大。
+
+目前在该项目中，还未重现这个BUG
+
+# 六： Spring data jpa 的动态查询
+
+
+
+
+
+
+
+# 七： Spring data  jpa 的事务处理
+
+在Spring data jpa中，默认的CURD方法都是事务性的。当然你自己写的方法是没有事务的，你可以有两种选择
+
+1. 在接口方法上加上` @Transactional`
+
+2. 在外部调用的service方法上面写上`  @Transactional`注解，不过这需要你加上下面的配置
+
+   `<tx：annotation-driven />`或显式使用`@EnableTransactionManagement `
+
+3. 在接口上写`@Transactional(readOnly = true)`
+
+   > 一般说来，里面的方法就都是只读查询了，如果里面还是有修改的操作的话，可以选择覆写
+   >
+   > @` @Transactional`  再来一个@Modifying注解
+
+4. 可以手动使用编程来执行事务，关于这个的其他信息，可以参考本项目里面的`streamQuery`的方法
+
+
+
+## 八： Spring data jpa 的审计
+
+不知道用什么词来形容它，它可以在保存实体时，帮你填充保存日期或者是更新日期，更新人，创建人等等。
+
+先挖坑，了解确实有这么一个东西。
+
+# 九：异步查询
+
+就不用解释是什么了吧，就是异步查询
+
+
+
+
+
+
+
 
 
 
