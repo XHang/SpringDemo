@@ -11,7 +11,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.PagingAndSortingRepository;
+
+import java.util.List;
 
 @SpringBootApplication
 public class SpringDataApplication {
@@ -26,15 +30,13 @@ public class SpringDataApplication {
      * @param repository
      * @return
      */
-   /* @Bean
+    @Bean
     public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao) {
         //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
-            saveUser(repository);
-            queryUser(repository);
-            queryUserByPaging(userPagingDao);
+            dynamicquery(repository);
         };
-    }*/
+    }
 
     /**
      * 保存对象
@@ -42,11 +44,11 @@ public class SpringDataApplication {
      */
     private void saveUser(UserDao repository){
         // save a couple of Users
-        repository.save(new User("Jack", "Bauer"));
-        repository.save(new User("Chloe", "O'Brian"));
-        repository.save(new User("Kim", "Bauer"));
-        repository.save(new User("David", "Palmer"));
-        repository.save(new User("Michelle", "Dessler"));
+        repository.save(new User("Jack", "12"));
+        repository.save(new User("Chloe", "12"));
+        repository.save(new User("Kim", "33"));
+        repository.save(new User("David", "44"));
+        repository.save(new User("Michelle", "11"));
 
         for (int i=0;i<100;i++){
             repository.save(new User("张哥第"+i+"儿子", "ignore"));
@@ -90,6 +92,19 @@ public class SpringDataApplication {
         System.out.println("当前为第"+userPage.getNumber()+"页");
         System.out.println("本页有"+ userPage.getSize()+"记录数");
         userPage.forEach((args)->System.out.println("当前用户名是"+args.getUserName()));
+    }
+
+    private void dynamicquery(UserDao dao){
+        saveUser(dao);
+        Slice<User> users =dao.findByPassword("ignore",PageRequest.of(0,5));
+        System.out.println(users.getNumber());
+        //无论调用多少次nextPageable，得到的结果都是一样
+        Pageable able = users.nextPageable();
+        List<User> list = users.getContent();
+        int number = users.getNumber();
+        int eleNumber = users.getNumberOfElements();
+       int size =  users.getSize();
+        return ;
     }
 }
 

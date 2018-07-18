@@ -1,6 +1,9 @@
 package com.springdata.dao;
 
 import com.springdata.bean.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
@@ -18,6 +21,18 @@ public interface UserDao  extends CrudRepository<User,Long> {
      */
     //使用规范的方法名，可以让SpringData识别到，自动生成sql语句
     List<User> findByUserName(String userName);
+
+    /**
+     * 进行分页查询,这个的使用可以参考之前的queryUserByPaging方法
+     * @param userName
+     * @param pageable
+     * @return
+     */
+    Page<User> findByUserName(String userName, Pageable pageable);
+
+    Slice findByPassword(String passWord, Pageable pageable);
+
+
 
 
 
