@@ -45,6 +45,8 @@ public interface UserDao  extends CrudRepository<User,Long> {
      */
     Stream<User> findByUserNameLike(String userName);
 
+    List<User> findByUserNameStartingWith(String userNmae);
+
 
 
 

@@ -1,6 +1,8 @@
 package com;
 
+import com.springdata.bean.Org;
 import com.springdata.bean.User;
+import com.springdata.bean.Vo;
 import com.springdata.dao.UserDao;
 import com.springdata.dao.UserPagingDao;
 import org.slf4j.Logger;
@@ -21,6 +23,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -39,10 +49,10 @@ public class SpringDataApplication {
      * @return
      */
     @Bean
-    public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao,PlatformTransactionManager pa) {
+    public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao,PlatformTransactionManager pa,EntityManager manager) {
         //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
-            streamQuery(repository,pa);
+            dynamicQuery2(repository,manager);
         };
     }
 
@@ -59,7 +69,13 @@ public class SpringDataApplication {
         repository.save(new User("Michelle", "11"));
 
         for (int i=0;i<100;i++){
-            repository.save(new User("张哥第"+i+"儿子", "ignore"));
+            User user= new User("张哥第"+i+"儿子", "ignore");
+            user.setCreateDate(new Timestamp(new Date().getTime()));
+            Org org = new Org();
+            org.setOrgCode("orgCode"+i);
+            org.setOrgName("组织编码"+i);
+            user.setOrg(org);
+            repository.save(user);
         }
 
     }
@@ -134,8 +150,56 @@ public class SpringDataApplication {
                 stream.close();
             }
         });
-
     }
+    public void executeSpecialQuery(UserDao dao){
+        saveUser(dao);
+        List<User> users = dao.findByUserNameStartingWith("张哥");
+        users.forEach((user)->System.out.println(user.getUserName()));
+    }
+    /**
+     * 1. multiselect指定了多个字段显示的话，对应的对象就要为其指定对应的构造函数
+     * 比如说我里面指定了要select userName和password,那么我对应的实体类就要添加一个userName和password的构造函数
+     */
+    public  void dynamicQuery1(UserDao dao,EntityManager entityManager){
+        saveUser(dao);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        //创建查询对象
+        CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
+        //就是指定from 后面的表的名字，是嘛
+        Root<User> from =  query.from(User.class);
+        //来设置结果类型,multiselect是select多个字段，select方法只select一个字段
+        query.multiselect(from.get("userName"),from.get("password"));
+        //    q.select(order.get("shippingAddress").<String>get("state"));
+        //准备执行查询而创建的TypedQuery对象
+        TypedQuery<User> q = entityManager.createQuery(query);
+        List<User> list = q.getResultList();
+        list.forEach((user)->System.out.println(user));
+    }
+
+    /**
+     * select count(*),password,'ax' from User group by password
+     * 这个例子展现了更有趣的内容，他查询出了一个新的字段值-ax，但是这个字段值不属于实体类的任何字段
+     * 这个时候，你要把他保存起来，就要用到DTO，如下文所示，你可以建一个VO类，然后这个查询语句要查询哪个字段。
+     * 你就要按顺序把这些字段构造出一个构造器出来。不按顺序？JPA不知道select出来的字段和实体类的字段之间的对应关系
+     * @param dao
+     * @param entityManager
+     */
+    public  void dynamicQuery2(UserDao dao,EntityManager entityManager){
+        saveUser(dao);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        //创建类型安全的查询时，指定查询的对象
+        CriteriaQuery<Vo> query = criteriaBuilder.createQuery(Vo.class);
+        //就是指定from 后面的表的名字，是嘛
+        Root<User> from =  query.from(User.class);
+        //就是简单的分组，根据password
+        query.groupBy(from.get("password"));
+        query.multiselect(criteriaBuilder.count(from),from.get("password"),criteriaBuilder.literal("ax"));
+        //准备执行查询而创建的TypedQuery对象
+        TypedQuery<Vo> q = entityManager.createQuery(query);
+       List<Vo> vos =q.getResultList();
+        vos.forEach((vo)->System.out.println(vo.getCount()+"   "+vo.getPassword()));
+    }
+
 }
 
 
