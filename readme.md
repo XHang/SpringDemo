@@ -256,6 +256,52 @@ Spring data jpa 为我们提供了多种查询的方式，以下节将介绍Spri
 
 就不用解释是什么了吧，就是异步查询
 
+
+
+## 9.3 动态查询
+
+Spring Data jpa 遵循JPA规范，JPA规范有的东西，Spring Data jpa当然也有了。
+
+其中就包含`Criteria API` 了
+
+Spring Data jpa支持两种不同`Criteria API`的实现，
+
+第一种是用原始的EntityManager来实现。虽然要写很多的样板代码，但是可以书写复杂的查询。
+
+第二种用你的Repository类继承自`JpaSpecificationExecutor`类，你的repository类就有了几个findAll的方法
+
+老实说吧，Spring Data Jpa 提供的`Criteria APi`虽然减少了样板代码的书写，但其实它只能支持where级别的查询，并且只能查询当前的实体类。
+
+为什么这么说，你看到`toPredicate`返回值是什么，`Predicate`对象，这个是一个谓词，表达的意思类似于x!=y
+
+Spring data jpa拿来`Predicate`对象是塞在CriteriaQuery的where里面的。
+
+> 其实官网也隐晦的承认了。。
+>
+> By writing a `criteria`, you define the where clause of a query for a domain class 
+>
+> 其实是光明正大的承认的。哈哈哈
+
+什么，你想group by ，什么，你想count，这是行不通的，至少我看来不行。
+
+`Criteria API`包含三个几个核心类
+
+`CriteriaQuery`你就把它看做是整个sql语句行了，它上面有N多方法可以用，像什么groupby 啊，where 啊，select 啊
+
+​	调用这些方法就相当于在sql语句上写where，group by什么的。
+
+`CriteriaBuilder` 这个是一个构建器，可以构建一些表达式（`Expression`）或者条件（大于小于什么的）
+
+甚至是sql的方法，都可以构造。
+
+构建出来的东西都是塞到CriteriaQuery里面的。
+
+其实`Criteria api`的东西大致就是这样了，更多内容，还可以看看我写的例子。
+
+
+
+
+
 # 第十节：Repository自定义实现
 
 Spring data jpa的存储库自定义实现有几种方法
@@ -324,6 +370,10 @@ Spring data jpa的存储库自定义实现有几种方法
 | `True`              | `findByActiveTrue()`                                         | `… where x.active = true`                            |
 | `False`             | `findByActiveFalse()`                                        | `… where x.active = false`                           |
 | `IgnoreCase`        | `findByFirstnameIgnoreCase`                                  | `… where UPPER(x.firstame) = UPPER(?1)`              |
+
+## 
+
+
 
 
 
