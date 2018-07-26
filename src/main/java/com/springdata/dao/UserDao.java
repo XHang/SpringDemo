@@ -4,6 +4,7 @@ import com.springdata.bean.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.stream.Stream;
  * 只需要定义接口，SpringData在运行时自动生成对应的实现类
  * 继承CrudRepository接口会自动继承里面的CURD方法
  */
-public interface UserDao  extends CrudRepository<User,Long> {
+public interface UserDao  extends CrudRepository<User,Long> ,JpaSpecificationExecutor<User> {
     /**
      * 根据姓名查找用户记录
      * @param userName 用户名

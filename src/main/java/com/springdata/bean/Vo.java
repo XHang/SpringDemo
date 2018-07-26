@@ -10,6 +10,10 @@ public class Vo {
 
     private String userName;
 
+    private String orgName;
+
+
+
     public Long getCount() {
         return count;
     }
@@ -30,5 +34,19 @@ public class Vo {
         this.count = count;
         this.password = password;
         this.userName = userName;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public Vo(String password, String userName, String orgName) {
+        this.password = password;
+        this.userName = userName;
+        this.orgName = orgName;
     }
 }

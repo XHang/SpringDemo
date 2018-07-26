@@ -1,6 +1,7 @@
 package com;
 
 import com.springdata.bean.Org;
+import com.springdata.bean.StatisticsVo;
 import com.springdata.bean.User;
 import com.springdata.bean.Vo;
 import com.springdata.dao.UserDao;
@@ -23,11 +24,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.jws.soap.SOAPBinding;
+import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,24 +54,19 @@ public class SpringDataApplication {
     public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao,PlatformTransactionManager pa,EntityManager manager) {
         //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
-            dynamicQuery2(repository,manager);
+            springDataJpaDynamitQuery(repository);
         };
+
     }
+
 
     /**
      * 保存对象
      * @param repository
      */
     private void saveUser(UserDao repository){
-        // save a couple of Users
-        repository.save(new User("Jack", "12"));
-        repository.save(new User("Chloe", "12"));
-        repository.save(new User("Kim", "33"));
-        repository.save(new User("David", "44"));
-        repository.save(new User("Michelle", "11"));
-
         for (int i=0;i<100;i++){
-            User user= new User("张哥第"+i+"儿子", "ignore");
+            User user= new User("用户"+i, "ignore");
             user.setCreateDate(new Timestamp(new Date().getTime()));
             Org org = new Org();
             org.setOrgCode("orgCode"+i);
@@ -79,6 +76,7 @@ public class SpringDataApplication {
         }
 
     }
+
 
     private void queryUser(UserDao repository){
         // fetch all Users  取所有用户
@@ -118,7 +116,7 @@ public class SpringDataApplication {
         userPage.forEach((args)->System.out.println("当前用户名是"+args.getUserName()));
     }
 
-    private void dynamicquery(UserDao dao){
+    private void sliceQuery(UserDao dao){
         saveUser(dao);
         Slice<User> users =dao.findByPassword("ignore",PageRequest.of(0,5));
         System.out.println(users.getNumber());
@@ -143,7 +141,7 @@ public class SpringDataApplication {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                Stream<User> stream = dao.findByUserNameLike("%张哥%");
+                Stream<User> stream = dao.findByUserNameLike("%用户%");
                 stream.forEach((args)->System.out.println("遍历出来的用户名是"+args.getUserName()));
                 //stream里面包含了一个底层的资源，不用时需要关闭
                 System.out.println("查询结束");
@@ -151,16 +149,22 @@ public class SpringDataApplication {
             }
         });
     }
+
+    /**
+     * 根据name字段的开始的前几个字符进行查找
+     * @param dao
+     */
     public void executeSpecialQuery(UserDao dao){
         saveUser(dao);
-        List<User> users = dao.findByUserNameStartingWith("张哥");
+        List<User> users = dao.findByUserNameStartingWith("用户");
         users.forEach((user)->System.out.println(user.getUserName()));
     }
     /**
      * 1. multiselect指定了多个字段显示的话，对应的对象就要为其指定对应的构造函数
      * 比如说我里面指定了要select userName和password,那么我对应的实体类就要添加一个userName和password的构造函数
+     * 生成的sql语句如下：select userName,password from _user ;
      */
-    public  void dynamicQuery1(UserDao dao,EntityManager entityManager){
+    public  void multiEntityFieldQueryByDymanic(UserDao dao,EntityManager entityManager){
         saveUser(dao);
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         //创建查询对象
@@ -184,7 +188,7 @@ public class SpringDataApplication {
      * @param dao
      * @param entityManager
      */
-    public  void dynamicQuery2(UserDao dao,EntityManager entityManager){
+    public  void multiFieldQueryByDymanic(UserDao dao,EntityManager entityManager){
         saveUser(dao);
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         //创建类型安全的查询时，指定查询的对象
@@ -199,6 +203,77 @@ public class SpringDataApplication {
        List<Vo> vos =q.getResultList();
         vos.forEach((vo)->System.out.println(vo.getCount()+"   "+vo.getPassword()));
     }
+
+    /**
+     * 演示一下简单的where动态查询
+     * 生成的sql语句大致如下：
+     * select * from _user where userName = 'Jack'
+     */
+    public void whereDynamicQuery(EntityManager entityManager,UserDao userDao){
+        saveUser(userDao);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery =  criteriaBuilder.createQuery(User.class);
+        Root<User> userRooot  = criteriaQuery.from(User.class);
+        Predicate whereCondition = criteriaBuilder.equal(userRooot.get("userName"),criteriaBuilder.literal("用户1"));
+        criteriaQuery.where(whereCondition);
+        criteriaQuery.select(userRooot);
+        TypedQuery<User> typedQuery = entityManager.createQuery(criteriaQuery);
+        User user =  typedQuery.getSingleResult();
+        System.out.println("查询出来的用户名为"+user.getUserName());
+    }
+
+    /**
+     * 演示join查询<br/>
+     * 一般情况下,只要你的实体类加了OneToOne之类的注解，并且动态查询有把相关联的外键表查出来。<br/>
+     * 那么你无需加上join字段，程序自动帮你查出来，厉害吧。<br/>
+     * 但是，总有一两个的需求需要join表来实现的，所以呢，年轻人，还是要多学习一下的。<br/>
+     * 参考sql select user.userName, user.password, org.orgName from _user as user join org on user.org_id = org.id
+     * @param entityManager
+     */
+    public void joinDynamicQuery(EntityManager entityManager,UserDao userDao){
+        saveUser(userDao);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Vo> criteriaQuery =  criteriaBuilder.createQuery(Vo.class);
+        Root<User> userRooot  = criteriaQuery.from(User.class);
+        //join连接可以链式编程，join().join().join()...
+        Join join =  userRooot.join("org");
+        Predicate whereCondition = criteriaBuilder.equal(userRooot.get("userName"),criteriaBuilder.literal("用户1"));
+        criteriaQuery.where(whereCondition);
+        criteriaQuery.multiselect(userRooot.get("userName"),userRooot.get("password"),join.get("orgName"));
+        TypedQuery<Vo> typedQuery = entityManager.createQuery(criteriaQuery);
+        Vo vo =  typedQuery.getSingleResult();
+        System.out.println("查询出来的用户名为"+vo.getOrgName());
+    }
+
+    /**
+     *示例sql：select * from _user where group by DATE_FORMAT( apply_time, '%Y-%m-%d' )
+     */
+    public  void sqlMethodDynamicQuery(EntityManager entityManager,UserDao userDao){
+        saveUser(userDao);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<StatisticsVo> query = criteriaBuilder.createQuery(StatisticsVo.class);
+        Root root  = query.from(User.class);
+        query.groupBy(criteriaBuilder.function("DATE_FORMAT",String.class,root.get("createDate"),criteriaBuilder.literal("%Y-%m-%d")));
+        //count方法也可以用criteriaBuilder里面的count的方法，上面有例子了
+        query.multiselect(root.get("createDate"),criteriaBuilder.function("count",Integer.class,root));
+        TypedQuery typedQuery = entityManager.createQuery(query);
+        List<StatisticsVo> vo =  typedQuery.getResultList();
+        vo.forEach((arg)->System.out.println(arg.getDate()+"日期办理人数是"+arg.getCount()));
+    }
+
+    /**
+     * 使用Spring Data JPA 实现Criteria API
+     * 参考sql: select * from _user where username = '用户1';
+     * @param userDao
+     */
+    public void springDataJpaDynamitQuery(UserDao userDao){
+        saveUser(userDao);
+        List<User> users = userDao.findAll((root,query,build)->{return build.equal(root.get("userName"),build.literal("用户1"));});
+        users.forEach((user)->System.out.println(user.getPassword()));
+    }
+
+
+
 
 }
 

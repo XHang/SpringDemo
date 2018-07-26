@@ -92,4 +92,12 @@ public class User implements java.io.Serializable{
     public void setCreateDate(Timestamp createDate) {
         this.createDate = createDate;
     }
+
+    public User(String userName, String password, Org org) {
+        this.userName = userName;
+        this.password = password;
+        this.org = org;
+    }
+
+
 }
