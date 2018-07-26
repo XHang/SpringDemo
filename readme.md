@@ -280,7 +280,7 @@ Spring data jpa拿来`Predicate`对象是塞在CriteriaQuery的where里面的。
 >
 > By writing a `criteria`, you define the where clause of a query for a domain class 
 >
-> 其实是光明正大的承认的。哈哈哈
+> 其实是光明正大的承认的
 
 什么，你想group by ，什么，你想count，这是行不通的，至少我看来不行。
 
