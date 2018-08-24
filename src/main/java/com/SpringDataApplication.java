@@ -1,5 +1,7 @@
 package com;
 
+import com.cxh.service.IncrService;
+import com.cxh.util.HighConcurrencyTool;
 import com.springdata.bean.Org;
 import com.springdata.bean.StatisticsVo;
 import com.springdata.bean.User;
@@ -8,6 +10,7 @@ import com.springdata.dao.UserDao;
 import com.springdata.dao.UserPagingDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,10 +20,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -34,6 +40,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @SpringBootApplication
@@ -51,10 +58,22 @@ public class SpringDataApplication {
      * @return
      */
     @Bean
-    public CommandLineRunner demo(UserDao repository,UserPagingDao userPagingDao,PlatformTransactionManager pa,EntityManager manager) {
+    public CommandLineRunner demo(UserDao repository,
+                                  UserPagingDao userPagingDao,
+                                  PlatformTransactionManager pa,
+                                  EntityManager manager,
+                                  JdbcTemplate jdbcTemplate,
+                                  IncrService service) {
         //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
-            springDataJpaDynamitQuery(repository);
+            Runnable runnable = ()->{
+                for (int i=0;i<10000;i++){
+                    System.out.println(service.useOptimismIncreased());
+                }
+                 return;
+            };
+            HighConcurrencyTool.run(4,runnable);
+
         };
 
     }
@@ -87,7 +106,7 @@ public class SpringDataApplication {
         }
         log.info("");
         // fetch an individual User by ID  通过用户ID取得单独的用户
-        repository.findById(1L)
+        repository.findById(1)
                 .ifPresent(User -> {
                     log.info("User found with findById(1L):");
                     log.info("--------------------------------");
@@ -272,8 +291,41 @@ public class SpringDataApplication {
         users.forEach((user)->System.out.println(user.getPassword()));
     }
 
+    /**
+     * 验证一个想法
+     * jdbc读取的数据是不能即时读取的?
+     * @param jdbcTemplate
+     */
 
 
+    @Transactional
+    public void jdbcTemplateTest(JdbcTemplate jdbcTemplate,UserDao dao){
+        update(dao);
+        String userName = "测试人员";
+        String sql = "select * from _user where user_name = ?";
+        //dao.save(user);
+       /* List<User> user1 = dao.findByUserName(userName);
+        System.out.println("dao查出来user为"+user1.get(0));*/
+        Map<String,Object> map = jdbcTemplate.queryForMap(sql,userName);
+        map.forEach((key,value)->{
+            System.out.println("查询出来的key["+key+"]，然后，value是["+value+"]");
+            return ;
+        });
+
+
+
+    }
+
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = Exception.class)
+    public void update(UserDao dao){
+        User user = dao.findById(2).get();
+        user.setPassword("54565");
+        dao.save(user);
+        System.out.println("密码已更新");
+        throw new RuntimeException("搞事情");
+
+    }
 
 }
 

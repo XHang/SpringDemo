@@ -16,7 +16,7 @@ public class SimpleController {
 
     @RequestMapping("getuser")
     @ResponseBody
-    public User getUserList(long id){
+    public User getUserList(Integer id){
         User user  =  dao.findById(id).get();
         return user;
     }

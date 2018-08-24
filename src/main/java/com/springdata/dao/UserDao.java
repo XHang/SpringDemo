@@ -15,7 +15,7 @@ import java.util.stream.Stream;
  * 只需要定义接口，SpringData在运行时自动生成对应的实现类
  * 继承CrudRepository接口会自动继承里面的CURD方法
  */
-public interface UserDao  extends CrudRepository<User,Long> ,JpaSpecificationExecutor<User> {
+public interface UserDao  extends CrudRepository<User,Integer> ,JpaSpecificationExecutor<User> {
     /**
      * 根据姓名查找用户记录
      * @param userName 用户名
