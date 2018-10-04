@@ -28,6 +28,7 @@
   			<artifactId>h2</artifactId>
   			<version>1.4.195</version>
 		</dependency>
+
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -40,8 +41,34 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+      <dependency>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+          <version>3.1.12</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
+          <version>3.1.12</version>
+      </dependency>
+      <!--jax-rs 的wsdl文档生成工具-->
+      <dependency>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>cxf-rt-rs-service-description</artifactId>
+          <version>3.2.6</version>
+      </dependency>
   </dependencies>
   <build>
     <finalName>SpringBootExample</finalName>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>6</source>
+                  <target>6</target>
+              </configuration>
+          </plugin>
+      </plugins>
   </build>
 </project>
