@@ -202,7 +202,8 @@ JPA规范的特点
 | 配置代码                 | 作用    |
 | ------------------------ | ------- |
 | spring.jpa.show-sql=true | 打印sql |
-|logging.level.org.hibernate.SQL=debug|打印sql参数|  
+|logging.level.org.hibernate.SQL=DEBUG  
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE|打印sql参数|  
 
 顺便日志文件加上这个  
 ```
