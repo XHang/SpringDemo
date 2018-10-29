@@ -58,7 +58,7 @@
 不过某人已经实现了一个可以处理get乱码的过滤器了  
 
 PS:  
-		
+​		
 	<plugin>
 	      <groupId>org.apache.tomcat.maven</groupId>
 	      <artifactId>tomcat7-maven-plugin</artifactId>
@@ -117,4 +117,123 @@ PS:
 
    当然这种方式很原始，现在更多的是弄一个转换器，来转对应的参数
 
-2. 
+
+
+## Spring MVC JSON反序列化设置
+
+这一章主要是讲，在SpringMVC中，怎么自定义地将JSON数据序列化成对象。
+
+业务举例：前端传来了一段json数据
+
+```
+{
+  "desc": "这是测试例子",
+  "status": "0"
+}
+```
+
+一般来说，你要把这段数据保存在一个JAVA的实体类中。而且这个实体类必须是有两个属性
+
+String desc
+
+String status
+
+那好，问题来了，实际上你的实体类没有一个String的status，而是一个实体类的Status.
+
+这个实体类内容是
+
+String id
+
+String name
+
+现在的问题是，怎么把json里面的status,变成实体类Status对象，并填充到响应对象里面？
+
+> 感觉举得例子有点老太婆裹脚布，又臭又长。
+
+问题的解决，就是用`@JsonSerialize(using = xxxx.class)`注解，用在字段的get方法
+
+xxxx类，要你自己写一个类，去继承`JsonSerializer`类
+
+不逼逼了，直接亮代码
+
+```
+public class DictDeserialize extends JsonDeserializer {
+    @Override
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        String id = p.getText();
+        //拿到json的字段名
+        String fieldName = p.getCurrentName();
+        //拿到反序列化的对象
+        Object target = p.getCurrentValue();
+        Class clazz = target.getClass();
+        Class type = null;
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+             type = field.getType();
+             //要保证Status类含有一个字符串参数的构造方法
+            Constructor constructor = type.getDeclaredConstructor(String.class);
+            //
+            return constructor.newInstance(id);
+        } catch (NoSuchFieldException e) {
+            throw new SystemException("即将反序列化的字段【%s】找不到，请校验你的类【%s】",fieldName,clazz);
+        } catch (NoSuchMethodException e) {
+            throw new SystemException("即将反序列化的字段【%s】，类型为【%s】找不到参数是(String id)的构造器，请校验你的字典类",fieldName,type);
+        } catch (Exception e) {
+            throw new SystemException(e,"反序列化字段【%s】失败,字段所属的类是【%s】",fieldName,clazz);
+        }
+    }
+
+```
+
+这个代码的目的就是将json里面的一个字符串类型的字段，反序列成java对象.
+
+
+
+## Spring MVC JSON  序列化设置
+
+既然有反序列化，那当然有序列化咯
+
+业务需求就是一个对象，有一个时间属性，你想控制这个时间在json中的表现形式，比如说，显示成数字形式的时间戳。这个时间，就可以让新的注解出场了
+
+```
+@JsonSerialize(using =xxx.class)
+```
+
+xxx也需要你自己继承JsonSerializer方法
+
+代码如下
+
+```
+/**
+ * 时间戳转换器
+ * 不知为何，默认的Timestamp，json转换后是2018-10-22T12:51:23.000+0000
+ */
+public class TimeStampSerializer extends JsonSerializer {
+
+    public void serialize(Timestamp value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+
+    }
+
+
+    @Override
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        if (value == null) {
+            gen.writeNull();
+        }else if (value instanceof Date){
+            Date date = (Date) value;
+            gen.writeNumber(date.getTime());
+        }else if (value instanceof Timestamp){
+            Timestamp timestamp = (Timestamp) value;
+            gen.writeNumber(timestamp.getTime());
+        }else{
+            throw new BusinessException("不支持除Date和Timestamp之外的json序列化，请修改程序，或者使用其他方法,你想序列化的类型是【%s】",value.getClass().getName());
+        }
+    }
+}
+```
+
+很简单吧，就不多解释了
+
+
+
+以上
