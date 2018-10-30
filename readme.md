@@ -203,6 +203,17 @@ JPA规范的特点
 | 配置代码                 | 作用    |
 | ------------------------ | ------- |
 | spring.jpa.show-sql=true | 打印sql |
+|logging.level.org.hibernate.SQL=DEBUG  
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE|打印sql参数|  
+
+顺便日志文件加上这个  
+```
+	<Logger level="WARN" name="org.hibernate.type.descriptor.sql.BasicExtractor" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+```
+不然日志会刷到你怀疑人生
+
 
 # 五：Spring data jpa的一些问题
 
