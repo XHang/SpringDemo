@@ -10,8 +10,9 @@
    > 实际上吧，我觉得就是Spring开发的一个ORM框架，跟Mybatis，Hibernate一样。
    >
    > 所谓JPA，其实就是Java对于持久化API的定义
-   
+
    该项目包含
+
    1. 使用悲观锁和乐观锁实现表序列递增操作
 
 2. 特性
@@ -90,9 +91,9 @@
    目的：Spring Boot的插件，可以支持以下Maven命令
 
       	1. `spring-boot:repackage `
-   		2. `spring-boot:run `
-   		3. `spring-boot:start `
-   		4. `spring-boot:build-info `
+   	​	2. `spring-boot:run `
+   	​	3. `spring-boot:start `
+   	​	4. `spring-boot:build-info `
 
 2. 构建自己的Dao接口类，必须继承自Repository类或者Repository类的子类
 
@@ -343,6 +344,74 @@ Spring data jpa的存储库自定义实现有几种方法
 
 3. 其他少用，不讲
 
+
+
+# 第十二节：JPA 实体继承机制
+
+这一节主要是将实体类之间的继承
+
+## 12.1 使用抽象类继承
+
+业务场景
+
+1. 现在数据库有两张表，两张表里面有很多个字段都是一样的。现在你要为这两张表构建实体类。
+
+   一般的笨方法就是两个实体类独立开来。
+
+   高级点的做法，就是将两个表相同的字段，抽取出来，放在抽象类里面。
+
+   然后分别建子类，放独有的字段。
+
+   所以步骤是这样的
+
+   1. 建立抽象类，抽象类要加`@MappedSuperclass`注解
+
+   2. 建立子类，去继承抽象类，子类只需要写独有的字段就行
+
+      子类除了继承，跟实体类并无任何区别
+
+      完毕
+
+   有几点注意的
+
+   1. 抽象类实际并不关联到任何一张表，所以不要给他加@Entity和@Table注解
+   2. 抽象类的字段跟实体类的字段声明完全一致
+
+
+
+# 第十三节 JPA的奇技淫巧
+
+## 13.1 一个表对应多个实体类
+
+业务场景：有一个字典表，专门存储各种枚举，字典。
+
+要求要根据枚举的类别，用实体类一一对应。
+
+再详细说明，就是有一个字典表，里面水表类型和状态。
+
+但是对应到项目中，是两个实体类。
+
+这个怎么实现？
+
+要通过两个注解
+
+```
+@DiscriminatorColumn(name = "字段名")
+@DiscriminatorValue("字段值")
+```
+
+在字典表中，肯定要用一个字段来区分不同的字段。
+
+所以，为你的字典实体类补充这两个注解，足矣
+
+
+
+
+
+
+
+
+
 # 备注
 
 
@@ -374,7 +443,7 @@ Spring data jpa的存储库自定义实现有几种方法
 | `False`             | `findByActiveFalse()`                                        | `… where x.active = false`                           |
 | `IgnoreCase`        | `findByFirstnameIgnoreCase`                                  | `… where UPPER(x.firstame) = UPPER(?1)`              |
 
-## 
+
 
 
 
