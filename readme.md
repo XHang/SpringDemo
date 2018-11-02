@@ -455,6 +455,13 @@ Spring data jpa的存储库自定义实现有几种方法
 | `IgnoreCase`        | `findByFirstnameIgnoreCase`                                  | `… where UPPER(x.firstame) = UPPER(?1)`              |
 
 
+# BUG  
+## `hql.internal.ast.QuerySyntaxException: xxxx is not mapped`  
+可能原因有
+1. 这个出错的hql bean的名称书写不正确，一定要是跟实体类的类名一致  
+2. 有两个相同的bean  
+实际运行时，这两个问题都没发现。
+最后使用类的全程解决，但是不可靠啊
 
 
 
