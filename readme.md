@@ -463,7 +463,76 @@ Spring data jpa的存储库自定义实现有几种方法
 实际运行时，这两个问题都没发现。
 最后使用类的全程解决，但是不可靠啊
 
+## 单表继承的实体类，作为另一个实体类的属性，查询报错  
+描述一下，就是有一个单表继承的实体类    
+```
+@Entity
+@Table(name = "ac_dict_option")
+@DiscriminatorOptions(force = true)
+@DiscriminatorColumn(name = "dict_type")
+@DiscriminatorValue("status")
+public class Status {
 
+    public static final Status EFFECTIVE = new Status("1");
+
+    public static final Status CLOSE = new Status("0");
+
+    public Status(String id) {
+        this.id = id;
+    }
+
+    public Status() {
+    }
+
+
+    @Id
+    @Column(name = "option_value")
+    private String id;
+    @Column(name = "label")
+    private String name;
+    @Column(name = "show_order")
+    private Integer showOrder;
+
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getShowOrder() {
+        return this.showOrder;
+    }
+
+
+```
+这个实体类作为另一个实体类的属性  
+```
+@Entity(name = COMMON_TABLE.km_wholesale)
+public class KmWholesaleBean {
+
+  private @JoinColumn(name = "status") @OneToOne(fetch = FetchType.LAZY)
+    Status status;
+}
+```
+最后我定义了一个查询方法 
+KmWholesaleBean findByIddAndStatus(Integer siteId, Status status);  
+
+结果意向不到的是。生成的sql语句没有加上@DiscriminatorValue("status")的where，而是查整张表.  
+导致查询出许多不想要的数据。  
+
+更令人意向不到的是。。。时好时坏。。现在又好了。但是sql语句还是查全部，只不过，查询方法只返回一个结果，而且也没保报错。  
+
+```
 
 
 
