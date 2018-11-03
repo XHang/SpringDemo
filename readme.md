@@ -416,6 +416,10 @@ Spring data jpa的存储库自定义实现有几种方法
 所以，为你的字典实体类补充这两个注解，足矣
 
 
+## 13.2 实体类使用枚举字段，但是使用的是枚举类的某个属性作为值
+
+这个还不知道，先来一个位置
+
 
 
 
@@ -525,7 +529,7 @@ public class KmWholesaleBean {
 }
 ```
 最后我定义了一个查询方法 
-KmWholesaleBean findByIddAndStatus(Integer siteId, Status status);  
+Bean findByIddAndStatus(Integer siteId, Status status);  
 
 结果意向不到的是。生成的sql语句没有加上@DiscriminatorValue("status")的where，而是查整张表.  
 导致查询出许多不想要的数据。  
