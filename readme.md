@@ -444,6 +444,8 @@ Spring data jpa的存储库自定义实现有几种方法
 
   学生表（student)
 
+
+
 |字段名| 注释|
 |-----|-----|
 |id   | 主键|
@@ -451,17 +453,26 @@ Spring data jpa的存储库自定义实现有几种方法
 
 教师表（Teacher）
 
+
+
 |字段名| 注释|
 |-----|-----|
 |id   | 主键|
 |name | 老师姓名 |
 
 关系表（std_tea）
+
+
+
 |字段名| 注释|
 |-----|-----|
 |id   | 主键|
 |std_id | 学生ID |
 |tea_id | 老师ID |
+
+
+
+
 
 表设计好了，但是在JPA的实体关联上，怎么实现呢？
 
@@ -607,6 +618,16 @@ Bean findByIddAndStatus(Integer siteId, Status status);
 
 更令人意向不到的是。。。时好时坏。。现在又好了。但是sql语句还是查全部，只不过，查询方法只返回一个结果，而且也没保报错。  
 
-```
+## findOne的特性
+使用SpringDataJPA的Repository时，发现有一个特别的方法
+findOne直接返回对象，而非optional对象
+原以为拿该对象去配判断isNull就能判断该记录是否存在。
 
-```
+现在想想，还是太native了。
+
+实际上，就算拿出来的记录不存在，也不会返回null.
+
+而是返回一个属性全部为空的对象。当你调用任何get方法时，直接给你抛出一个EntityNotFountException异常。
+
+后来。。我只能乖乖用findById了。
+
