@@ -245,4 +245,55 @@ public class TimeStampSerializer extends JsonSerializer {
 一大堆if语句乱飞?
 
 骚年，你需要这个`org.hibernate.validator`
+=======
+## 使用校验框架校验参数的有效性
 
+为什么使用校验框架来检验接口入参的有效性
+
+这还用多说？
+
+直接上解决方案
+
+1. 加依赖
+
+   ```
+   自己找去
+   ```
+
+2. 使用校验框架检验入参
+
+   假设有一个方法定义如下
+
+   ```
+   
+       @PostMapping
+       public void save(@RequestBody @Validated User user, BindingResult errForm, HttpServletRequest request, HttpServletResponse response) {
+           .....
+       }
+   ```
+
+   如代码所示，想对入参User的属性进行校验，控制字段必传与否
+
+   第一步就是在你想校验的参数前面加`@Validated`
+
+   第二步就是在被校验参数的后面再另加一个参数BindingResult errForm
+
+   校验的结果，SpringMVC放在这个参数里面了，只要对这个参数进行检查，就能知道那个字段校验不通过，是否要终止调用。
+
+   那么怎么告诉SpringMVC我要对哪个字段进行校验呢？
+
+   其实很简单，祭出几大注解，只要加注解在对应字段上，就能校验字段
+
+   1. `@NotNull` 非空注解。注意，对于字面量可不适用，比如说int类型的字段，double类型的字段。
+
+      小心SpringMVC给你抛出一个不知所云的异常
+
+   2. `@NotEmpty` 非空容器注解，这个只能加在容器类型字段上，比如说,List，Set,Map及数组
+
+      用于校验容器不能没有元素。即空容器是不允许的
+
+   3. `NotBlank`针对字符串的一个校验注解，校验字符串不能为空串；
+
+   4. @Valid针对实体类的一个注解，目前看到的用法就是在嵌套对象属性上面加，则嵌套对象里面的属性校验注解也会生效，如果不加，就不会生效
+
+   以上
