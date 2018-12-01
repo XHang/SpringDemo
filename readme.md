@@ -59,13 +59,13 @@
 
 PS:  
 ​		
-	<plugin>
-	      <groupId>org.apache.tomcat.maven</groupId>
-	      <artifactId>tomcat7-maven-plugin</artifactId>
-	      <version>2.2</version>
-	      <configuration>
-	      	<warSourceDirectory>WebRoot</warSourceDirectory>
-	      </configuration>
+​	<plugin>
+​	      <groupId>org.apache.tomcat.maven</groupId>
+​	      <artifactId>tomcat7-maven-plugin</artifactId>
+​	      <version>2.2</version>
+​	      <configuration>
+​	      	<warSourceDirectory>WebRoot</warSourceDirectory>
+​	      </configuration>
   </plugin> 
 
 可以设置项目用tomcat插件运行，其中warSourceDirectory的配置指定的是运行的web路径
@@ -237,3 +237,12 @@ public class TimeStampSerializer extends JsonSerializer {
 
 
 以上
+
+## Spring MVC 数据校验
+
+业务代码写校验判断很烦？
+
+一大堆if语句乱飞?
+
+骚年，你需要这个`org.hibernate.validator`
+
