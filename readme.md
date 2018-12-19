@@ -203,8 +203,8 @@ JPA规范的特点
 | 配置代码                 | 作用    |
 | ------------------------ | ------- |
 | spring.jpa.show-sql=true | 打印sql |
-|logging.level.org.hibernate.SQL=DEBUG  
-logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE|打印sql参数|  
+|logging.level.org.hibernate.SQL=DEBUG|打印sql|
+|logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE|打印sql参数|
 
 顺便日志文件加上这个  
 ```
@@ -213,6 +213,17 @@ logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE|打印sql参�
 		</Logger>
 ```
 不然日志会刷到你怀疑人生
+
+顺带一提，JDBCTemplate的打印sql语句的配置在此
+
+```
+<!-- JDBC 打印sql -->
+<Logger level="trace" name="org.springframework.jdbc.core" additivity="false">
+			<AppenderRef ref="Console" />
+</Logger>
+```
+
+put into log4j.xml
 
 
 # 五：Spring data jpa的一些问题
@@ -225,7 +236,38 @@ logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE|打印sql参�
 
 # 六： Spring data jpa 的动态查询
 
+有关动态查询的代码和解释，都放在code里面
 
+但是关于子查询的，今天偸个懒，就先记在这里了
+
+先亮代码
+
+```
+  CriteriaBuilder criteriaBuilder  =  entityManager.getCriteriaBuilder();
+        CriteriaQuery criteriaQuery = criteriaBuilder.createQuery();
+        Subquery subquery = criteriaQuery.subquery(User.class);
+        Root<User> root = subquery.from(User.class);
+        Join<User,Role> join =  root.join("roles");
+        Join<User,Org> join1 = root.join("org");
+        Predicate predicate2 = 、、、
+        Predicate predicate3 =、、、
+        subquery.where(predicate2,predicate3);
+        subquery.select(root.get("id"));
+		//子查询查根据条件查用户表，拿到用户ID
+
+        Root<User> root1 = criteriaQuery.from(User.class);
+        criteriaQuery.select(root1);
+        Predicate predicate1 = 、、、
+        Predicate predicate5 = 、、、
+        //主查询的id不在子查询的id内
+        Predicate predicate4 = criteriaBuilder.not(root1.get("id").in((subquery)));
+        criteriaQuery.where(predicate1,predicate4,predicate5);
+       TypedQuery<User> query =  entityManager.createQuery(criteriaQuery);
+       return  query.getResultList();
+       
+```
+
+以上。
 
 
 
@@ -433,7 +475,7 @@ Hibernate对于实体的状态，有几个定义
 
 
 
-# 第十三节 JPA的奇技淫巧
+# 第十三节 JPA关联关系
 
 ## 13.1 一个表对应多个实体类
 
@@ -460,11 +502,76 @@ Hibernate对于实体的状态，有几个定义
 
 
 
+# 13.2 使用非主键关联其他表
+
+之前的关联的模式是
+
+假设表A如此
+
+| 字段名 | 解释        |      |
+| ------ | ----------- | ---- |
+| id     | 主键        |      |
+| b_id   | 关联B的主键 |      |
+| name   | 名称        |      |
 
 
 
+假设表B如此
 
 
+
+| 字段名 | 解释 |      |
+| ------ | ---- | ---- |
+| id     | 主键 |      |
+| name   | 名称 |      |
+|        |      |      |
+
+在JPA的Entity上，关联关系就是如此
+
+```
+public class A{
+    private Integer id;
+    private String name;
+    @JoinColumn(name = "b_id")
+    @OneToOne
+    private B b；
+}
+```
+
+默认JoinColumn 就是关联主键的
+
+但是如果表结构是这样的呢？
+
+假设表A如此
+
+| 字段名 | 解释            |      |
+| ------ | --------------- | ---- |
+| id     | 主键            |      |
+| b_name | 关联B的name字段 |      |
+| name   | 名称            |      |
+
+假设表B如此
+
+| 字段名 | 解释 |      |
+| ------ | ---- | ---- |
+| id     | 主键 |      |
+| name   | 名称 |      |
+
+那么JoinColumn就需要补充属性，来告知JPA，A表这个字段，关联的是B表的哪个字段?
+
+```
+public class A{
+    private Integer id;
+    private String name;
+    @JoinColumn(name = "b_id",referencedColumnName = "name")
+    @OneToOne
+    private B b；
+}
+```
+
+值得一提的是，使用referencedColumnName的关联类，（本例子为B类）
+
+必须实现`Serialization`
 
 # 备注
 
@@ -497,7 +604,129 @@ Hibernate对于实体的状态，有几个定义
 | `False`             | `findByActiveFalse()`                                        | `… where x.active = false`                           |
 | `IgnoreCase`        | `findByFirstnameIgnoreCase`                                  | `… where UPPER(x.firstame) = UPPER(?1)`              |
 
+# 第十四节：BUG
 
+## 14.1 没有保存成功的BUG
+
+### 14.11 BUG描述
+
+第一次运行update sql 事务结束时，数据没有插入到数据库中
+
+第二次运行update sql 事务结束时，数据却插入到数据库了
+
+### 14.12 BUG追踪
+
+通过一步步调试，确认事务提交的代码是
+
+`TransactionAspectSupport`类的`invokeWithinTransaction方法`
+
+该方法调用了`commitTransactionAfterReturning`执行完毕后，数据插入到数据库了
+
+再进行调试
+
+发现在`JdbcResourceLocalTransactionCoordinatorImpl`的` commit() `方法
+
+调用`JdbcResourceLocalTransactionCoordinatorImpl.this.beforeCompletionCallback();`
+
+即保存
+
+### 14.13 最后结果
+
+唔，怎么说呢？之前查的底层细节一个都没用上。
+
+真正原因是程序在执行这个表的update之前，还执行了一次update.
+
+也就是说，一个事务内，对同一张表，执行了两次update操作。
+
+前一次update字段为空，使用的是JPA的Entity Persistence 方法
+
+后一个update字段为非空，使用的是JDBC的update方法
+
+虽然说，后者的update应该会覆盖前者的update，理应不会报出如此BUG
+
+但实际运行时，最前面到update sql 反而是最后打印的。
+
+所以导致先update的，会覆盖后面的update语句。
+
+对于这个原因，我也有所猜测，大概，是，JPA的Persistence 不会立即生效。
+
+实际也有一个saveAndFlush方法，宣称是立即生效的。
+
+言归正传，最后的解决办法是，前一个的update语句，不要update全部字段。
+
+以上
+
+# 第十五节 ：JPA 监听器的使用
+
+## 15.1 监听器的定义和应用
+
+没什么好说明的，监听器就是监听JPA实体的更新、保存、加载、移除的事件。
+
+可以在这些事件发生时，码一些监听代码，在这些事件触发前，触发后执行。
+
+常用的用处：
+
+1. 更新实体类前，填充实体类的更新时间，更新人
+2. 加载实体类前，填充一些字段上去
+3. 等等
+
+## 15.2 使用
+
+1. 弄一个监听器类
+
+   ```
+   public class EntityListener {
+       @PreUpdate
+       public void preUpdate(Entity entity){
+          
+       } 
+   }
+   
+   ```
+
+   其中
+
+   `PreUpdate`的含义就是在更新前触发该方法
+
+   这个注解的其他兄弟姐妹还有
+
+   `PrePersist`   `Preremove`  等等
+
+2. 将监听器类放在实体类的头顶上
+
+```
+@Entity
+@EntityListeners(EntityListener.class)
+public class Entuity{
+    
+}
+```
+
+3. 搞定
+
+## 15.3 禁忌事项
+
+监听代码内不能使用EntityManage的任何方法以及query方法
+
+用了怎么样？
+
+当你在监听器内调用query方法时，会递归调用监听器的方法
+
+导致Stack Overflow Error
+
+为什么？
+
+我猜测是实体在更新前，处于即将刷新到数据库的状态。
+
+此时任何对数据库的操作，都会引发实体类的数据库更新。
+
+而实体类的数据库更新，又会触发更新前操作。
+
+于是就无限循环了
+
+反正官方也说不要这么做，尽量还是避免这种做法
+
+猜测在query方法弄一个独立的事务去读，估计就不会有问题了
 
 
 
