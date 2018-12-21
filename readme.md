@@ -656,6 +656,85 @@ public class A{
 
 以上
 
+
+
+## 14.2 事务提交报错
+
+### 14.21 BUG描述
+
+就是一个事务，在最后的提交阶段。报
+
+```
+org.hibernate.AssertionFailure
+an assertion failure occured (this may indicate a bug in Hibernate, but is more likely due to unsafe use of the session)
+
+org.hibernate.AssertionFailure: possible nonthreadsafe access to session
+```
+
+### 14.22 BUG追踪
+
+看了堆栈信息，报错的点不在我写的代码内，而是Spring声明式事务提交时，报的错误。
+
+粗粗看来，不得要领，说是什么`可能的非线程安全访问会话`
+
+但是我执行的线程只有一个，只有一个执行线程，哪来的线程安全问题。
+
+Hibernate 这个报错信息没什么有用的价值信息。
+
+于是源码追踪，发现在`org.hibernate.engine.internal.EntityEntryContext`类的
+
+`removeEntityEntry`方法，执行
+
+`final ManagedEntity managedEntity = getAssociatedManagedEntity( entity );`时
+
+返回值为空导致的
+
+虽然不知道为什么导致为空，但是remove这个单词却让我眼前一亮。
+
+于是找到自己写的代码里面，remove的地方。
+
+把`entityManager.flush();`到处粘贴，最后发现在`remove`一个`Entity`后,再`detach`它
+
+再flush时就挂了。
+
+好了，现在BUG就在这两行代码内，二选一总会吧。
+
+移除`detach`，搞定。
+
+。。。。。
+
+你以为事情就这么结束了。
+
+too young too naive
+
+为什么不能`remove`   `Entity`后`detach`它呢？
+
+因为remove其实没有生效，它只不过在缓存中先记下这么一个操作。
+
+但是`detach`是立即生效的，作用是将该对象从Hibernate的缓存中清除。
+
+然后你再来一个flush。于是开始从缓存中读取remove这个操作，进行数据库执行。
+
+但是，之前的Entity已经被我们从缓存中干掉了，Hibernate拿哪个实体进行remove。
+
+所以它当然要抛异常。
+
+至于那个报错信息，如今看来也能理解了。
+
+Hibernate误以为我们开了两个线程，一个线程先对这个对象执行`detach`
+
+另外一个线程再对这个对象进行remove。
+
+两个线程的共享变量不同步。由此就引发了线程安全问题。
+
+虽然事情不是这样。。。
+
+### 14.23最后结果
+
+移除`detach`代码，下班走人
+
+
+
 # 第十五节 ：JPA 监听器的使用
 
 ## 15.1 监听器的定义和应用
