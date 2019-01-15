@@ -47,7 +47,7 @@
 		<value>com.example.packageB</value>
 		<value>com.example.packagec</value>
 </util:list>
-```
+``` spring.xml
 
 ```java
 @Service
