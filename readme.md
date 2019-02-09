@@ -269,6 +269,92 @@ put into log4j.xml
 
 以上。
 
+## 6.1 在Spring Data jpa中使用投影
+
+本章论述的是，如何在Spring Data jpa 的repository里面，通过原生的sql，只查询指定的几个字段，并自动封装到DTO里面
+
+使用这个方法的技术，叫做投影
+
+如何开始
+
+1. 新建投影，投影是一个接口，里面可以定义你想要暴露的Bean属性，通过get方法去声明
+
+   ```java
+   public interface UserDTO {
+       //只暴露用户对象的用户名和密码属性，其下面既是用户对象此两属性的get方法
+        String getUserName();
+        String getPassword();
+   }
+   ```
+
+   如上文代码所示，就是只查询User对象的用户名和密码
+
+2. 写一个repository接口方法
+
+   ```java
+   @Query(value = "
+   select user_name userName,password  from _user where user_name=?1",
+          nativeQuery = true)
+   public UserDTO queryByUserNameUsingProjection(String userName);
+   ```
+
+3. 直接调用，查看效果啦
+
+   > 值得一提的是，由于sql语句返回的数据中，字段名和`UserDTO`里面的getXXXX属性名一致。
+   >
+   > 所以查询出来的数据能直接转成UserDTO对象
+   >
+   > 上面的`UserDTO`也因此被称为封闭投影
+   >
+   > 但是如果sql返回的数据中，字段名和UserDTO`里面的getXXXX属性名不一致
+   >
+   > 比如说，sql这么写
+   >
+   > `select user_name ,password  from _user where user_name=?1`
+   >
+   > 数据返回的用户名字段叫user_name ，但是`UserDTO`声明的字段是userName
+   >
+   > 这样查询会导致`UserDTO`里面的用户名字段为空
+   >
+   > 解决办法可以是在`UserDTO`里面的`String getUserName();`
+   >
+   > 加上注解`@Value("#{target.user_name}")`
+   >
+   > 相对于起个别名吧
+   >
+   > 这样的`UserDTO`就不是封闭投影了，它有一个新的名字，叫做开放投影
+   >
+   > 另外一提，开通投影会的效率造成一定影响
+   >
+   > 再一提，`@Value`还可以用来注释计算新值
+   >
+   > 例如
+   >
+   > ```java
+   > @Value("#{target.userName + '_' + target.password}")
+   > String getUserNameAndPassword();
+   > ```
+   >
+   > 这样在`UserDTO`里面，相当于加了一个新属性`userNameAndPassword`
+   >
+   > 值是`用户名_密码`
+   >
+   > 当然，还要再啰嗦的是，这样JPA无法做查询优先，所以其实你也可以用JDK8的新特性
+   >
+   > 即接口的default方法
+   >
+   > 再一提，投影可以直接序列化成Json，所以理论上，把投影对象直接通过Controller返回应该是可行的
+
+
+
+
+
+   
+
+   
+
+   
+
 
 
 

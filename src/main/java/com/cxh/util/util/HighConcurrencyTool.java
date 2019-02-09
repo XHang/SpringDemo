@@ -1,4 +1,4 @@
-package com.cxh.util;
+package com.cxh.util.util;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

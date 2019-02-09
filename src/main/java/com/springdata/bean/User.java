@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 /**
  * User实体类对象，与数据库的User表是对应的
  */
-//此注解表示此类是跟数据库有关联的实体类，由于没有加@Table注解，假设数据库的表名就叫User吧
+//此注解表示此类是跟数据库有关联的实体类，由于没getUserName有加@Table注解，假设数据库的表名就叫User吧
 @Entity
 @Table(name = "_user")
 public class User implements java.io.Serializable{
