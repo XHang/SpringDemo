@@ -209,7 +209,6 @@ public class SpringDataApplication {
      * 1. multiselect指定了多个字段显示的话，对应的对象就要为其指定对应的构造函数
      * 比如说我里面指定了要select userName和password,那么我对应的实体类就要添加一个userName和password的构造函数
      * 生成的sql语句如下：select userName,password from _user ;
-     * TODO 目前仅适用JPA标准查询，那个SpringJPA不支持的
      */
     public  void multiEntityFieldQueryByDymanic(UserDao dao,EntityManager entityManager){
         saveUser(dao);
