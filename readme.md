@@ -819,6 +819,26 @@ Hibernate误以为我们开了两个线程，一个线程先对这个对象执�
 
 移除`detach`代码，下班走人
 
+## 14.3 查询一对多的关联报错
+
+如学生和班级的关联。
+
+现查学生列表，报
+
+```
+我找不到那段异常了   ORZ。。
+```
+
+最后的原因其实一眼就看出来。
+
+举个例子吧。
+
+有三个学生，他们对应的班级记录Code是class1
+
+但是在班级里面，却有两个class1的记录。
+
+这样就不符合一对多的前提了
+
 
 
 # 第十五节 ：JPA 监听器的使用
@@ -869,6 +889,14 @@ public class Entuity{
 
 3. 搞定
 
+
+
+
+
+
+
+
+
 ## 15.3 禁忌事项
 
 监听代码内不能使用EntityManage的任何方法以及query方法
@@ -892,6 +920,46 @@ public class Entuity{
 反正官方也说不要这么做，尽量还是避免这种做法
 
 猜测在query方法弄一个独立的事务去读，估计就不会有问题了
+
+
+
+## 15.4 拓展：JPA的审计功能
+
+其实就是在保存业务对象时，自动帮你设置CreateTime,CreateUser之类的字段
+
+使用步骤
+
+1. 在SpringBoot的启动类上加注解
+
+   `EnableJpaAuditing`
+
+2. 在要开启审计的类上，加上`@EntityListeners(AuditingEntityListener.class)`
+
+3. 在需要自动设置的字段那里，加上`@CreatedBy`或`@CreatedDate`对应注解
+
+   完事
+
+有个问题，因为Spring Data jpa 并不知道你的用户体系是什么样的。
+
+所以，如果你想自动设置创建人或更新人，你需要额外做点东西
+
+1. 实现`AuditorAware<T>`接口  T是你注解@CreatedBy那个字段的数据类型
+
+   ```
+   @Component("auditorAware")
+   public class UserAuditor implements AuditorAware<Integer> {
+       @Override
+       public Optional<Integer> getCurrentAuditor() {
+           return null;//do something
+       }
+   }
+   ```
+
+2. 在`EnableJpaAuditing`上追加一个属性，对于上文的例子，这个属性是这么加的
+
+   `@EnableJpaAuditing(auditorAwareRef = "auditorAware")`
+
+3. enjoy!
 
 
 
