@@ -1,10 +1,12 @@
 package com.springdata.dao;
 
 import com.springdata.bean.User;
+import com.springdata.projection.UserDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
@@ -47,6 +49,23 @@ public interface UserDao  extends CrudRepository<User,Integer> ,JpaSpecification
     Stream<User> findByUserNameLike(String userName);
 
     List<User> findByUserNameStartingWith(String userNmae);
+
+    /**
+     * 使用SpringData JPa 查询零碎字段的第一个手段，就是使用HSQL
+     * @param userName  用户名
+     * @return
+     */
+    @Query(value = "select new com.springdata.bean.User(userName,password) from User where userName=?1")
+    public User queryByUserNameUsingHSQL(String userName);
+    /**
+     * 使用SpringData JPa 查询零碎字段的第二个手段，就是使用投影
+     * @param userName  用户名
+     * @return
+     */
+    @Query(value = "select user_name userName,password  from _user where user_name=?1",nativeQuery = true)
+    public UserDTO queryByUserNameUsingProjection(String userName);
+
+
 
 
 

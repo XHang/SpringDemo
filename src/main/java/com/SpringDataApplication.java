@@ -1,16 +1,17 @@
 package com;
 
-import com.cxh.service.IncrService;
-import com.cxh.util.HighConcurrencyTool;
+import com.cxh.util.JSONUtil;
+import com.cxh.util.service.IncrService;
+import com.cxh.util.util.HighConcurrencyTool;
 import com.springdata.bean.Org;
 import com.springdata.bean.StatisticsVo;
 import com.springdata.bean.User;
 import com.springdata.bean.Vo;
 import com.springdata.dao.UserDao;
 import com.springdata.dao.UserPagingDao;
+import com.springdata.projection.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,10 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,14 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.jws.soap.SOAPBinding;
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -66,16 +61,41 @@ public class SpringDataApplication {
                                   IncrService service) {
         //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
-            Runnable runnable = ()->{
-                for (int i=0;i<10000;i++){
-                    System.out.println(service.useOptimismIncreased());
-                }
-                 return;
-            };
-            HighConcurrencyTool.run(4,runnable);
-
+            queryMultiFieldUsingSpringJpa(repository);
         };
+    }
 
+    /**
+     * 使用JPA查询零碎字段出来
+     */
+    private void queryMultiFieldUsingSpringJpa(UserDao userDao){
+        //先搞点数据
+        saveUser(userDao);
+        //使用HSQL查询多个属性
+        User user = userDao.queryByUserNameUsingHSQL("用户1");
+        System.out.println("查询出来的用户是 ："+ user);
+        //使用投影查询多个属性
+        UserDTO userDTO = userDao.queryByUserNameUsingProjection("用户2");
+
+        System.out.println("查询出来的用户密码是 ："+userDTO.getPassword()+"用户名是: "+userDTO.getUserName()+"计算的值是: "+userDTO.getUserNameAndPassword());
+
+        System.out.println("使用json序列化投影，查看效果  ："+ JSONUtil.toJSONString(userDTO));
+
+    }
+
+
+    /**
+     * 对乐观锁递增进行并发调用，测试其可靠性
+     * @param service
+     */
+    private void concurrentExecure(IncrService service){
+        Runnable runnable = ()->{
+            for (int i=0;i<10000;i++){
+                System.out.println(service.useOptimismIncreased());
+            }
+            return;
+        };
+        HighConcurrencyTool.run(4,runnable);
     }
 
 
@@ -96,7 +116,10 @@ public class SpringDataApplication {
 
     }
 
-
+    /**
+     * 演示如何查询对象，使用方接口方法
+     * @param repository
+     */
     private void queryUser(UserDao repository){
         // fetch all Users  取所有用户
         log.info("Users found with findAll():");
@@ -126,6 +149,10 @@ public class SpringDataApplication {
         // }
     }
 
+    /**
+     * 演示如何分页查询
+     * @param pagingDao
+     */
     private void queryUserByPaging( UserPagingDao pagingDao){
         Page<User> userPage = pagingDao.findAll(PageRequest.of(1,20 ));
         System.out.println("查询出来的总记录有"+userPage.getTotalElements());
@@ -206,6 +233,7 @@ public class SpringDataApplication {
      * 你就要按顺序把这些字段构造出一个构造器出来。不按顺序？JPA不知道select出来的字段和实体类的字段之间的对应关系
      * @param dao
      * @param entityManager
+     *
      */
     public  void multiFieldQueryByDymanic(UserDao dao,EntityManager entityManager){
         saveUser(dao);
@@ -324,7 +352,6 @@ public class SpringDataApplication {
         dao.save(user);
         System.out.println("密码已更新");
         throw new RuntimeException("搞事情");
-
     }
 
 }
