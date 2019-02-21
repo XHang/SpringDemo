@@ -357,6 +357,69 @@ Spring data jpa拿来`Predicate`对象是塞在CriteriaQuery的where里面的。
 
 
 
+## 9.4 自实现字段转换器
+
+什么是字段转换器
+
+其实就是将Bean里面的字段转换成数据库内的字段
+
+一般情况下，只要你的Bean字段类型和数据库字段类型能匹配，一般是不需要转换、
+
+然而，某些情况，为了缩减字段数，以及减少复杂度（懒得再建一张关系表之类的。。）
+
+数据库的字段设计，就会略显复杂，比如说，数据库字段是varchar类型，但是实际存的是多个字段串，只不过中间用逗号隔开而已。
+
+那么，你在Bean的字段设计中，可能就会采取将这个字段映射为`Java`的`List<String>`类型
+
+但是问题来了，JPA怎么知道将这一串字符串，按逗号分隔，转成`List<String>`类型呢？
+
+怎么告诉他，用的就是字段转换器
+
+实现一个字段转换器大致如下
+
+```java
+@Converter
+public class StringToStringCollection implements AttributeConverter<List<String> ,String> {
+    //将bean的字段转成数据库字段
+    @Override
+    public String convertToDatabaseColumn(List<String> attribute) {
+        if (CollectionUtils.isEmpty(attribute)){
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String s : attribute) {
+            sb.append(s);
+            sb.append(",");
+        }
+        return sb.substring(0,sb.length()-1);
+    }
+	//将数据库字段转成bean字段
+    @Override
+    public List<String> convertToEntityAttribute(String dbData) {
+        String [] metas = dbData.split(",");
+        List<String> attribute = new ArrayList<>();
+        for (String meta : metas) {
+            attribute.add(meta);
+        }
+        return attribute;
+    }
+}
+```
+
+然后，将这个转换器加在`Convert`注解的`converter`属性上
+
+再把`Convert`注解加在需要自定义转换的字段上
+
+比如说
+
+```java
+  @Column(name = "role_ids")
+  @Convert(converter = StringToIntegerCollection.class)
+ private List<Integer> roleIds;
+```
+
+搞定咯
+
 
 
 # 第十节：Repository自定义实现
