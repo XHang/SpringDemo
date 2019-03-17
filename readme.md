@@ -56,9 +56,7 @@
 可惜Spring提供的`org.springframework.web.filter.CharacterEncodingFilter`  
 只能处理post请求的数据。   
 不过某人已经实现了一个可以处理get乱码的过滤器了  
-
-PS:  
-​		
+```
 ​	<plugin>
 ​	      <groupId>org.apache.tomcat.maven</groupId>
 ​	      <artifactId>tomcat7-maven-plugin</artifactId>
@@ -67,6 +65,7 @@ PS:
 ​	      	<warSourceDirectory>WebRoot</warSourceDirectory>
 ​	      </configuration>
   </plugin> 
+```
 
 可以设置项目用tomcat插件运行，其中warSourceDirectory的配置指定的是运行的web路径
 
@@ -131,7 +130,6 @@ PS:
   "status": "0"
 }
 ```
-
 一般来说，你要把这段数据保存在一个JAVA的实体类中。而且这个实体类必须是有两个属性
 
 String desc
@@ -194,11 +192,9 @@ public class DictDeserialize extends JsonDeserializer {
 既然有反序列化，那当然有序列化咯
 
 业务需求就是一个对象，有一个时间属性，你想控制这个时间在json中的表现形式，比如说，显示成数字形式的时间戳。这个时间，就可以让新的注解出场了
-
 ```
 @JsonSerialize(using =xxx.class)
 ```
-
 xxx也需要你自己继承JsonSerializer方法
 
 代码如下
@@ -245,7 +241,7 @@ public class TimeStampSerializer extends JsonSerializer {
 一大堆if语句乱飞?
 
 骚年，你需要这个`org.hibernate.validator`
-=======
+
 ## 使用校验框架校验参数的有效性
 
 为什么使用校验框架来检验接口入参的有效性
@@ -256,9 +252,7 @@ public class TimeStampSerializer extends JsonSerializer {
 
 1. 加依赖
 
-   ```
-   自己找去
-   ```
+   > 自己找去
 
 2. 使用校验框架检验入参
 
@@ -297,3 +291,71 @@ public class TimeStampSerializer extends JsonSerializer {
    4. @Valid针对实体类的一个注解，目前看到的用法就是在嵌套对象属性上面加，则嵌套对象里面的属性校验注解也会生效，如果不加，就不会生效
 
    以上
+
+## 前端匹配接口
+### post请求前端后端写法（请求参数在请求体里面）
+
+   ​​后端代码
+
+```
+@RequestMapping("/xxxx")
+ public String  action (@RequestBody DsspRequestVo vo,		 												HttpServletRequest request,
+ 							HttpServletResponse response,
+ 							ModelMap model) 
+ 							throws IOException
+ {return null}
+```
+
+前端部分代码
+
+```
+​			$.ajax({
+​			type:"post",
+​			url:"xxxx",
+​			traditional: true,
+​			contentType: 'application/json',
+​			data :JSON.stringify(obj),
+​				success:function(data){
+​					 xxxx
+​				},
+​				error : function(data){
+​					xxxx
+​				}
+​			}); 
+```
+
+注意：
+
+1. 请求头必须加上` contentType: 'application/json'`因为后端接口post的接收参数默认接收的是json字符串，所以请求头里面必须有这个
+2.    traditional: true,阻止jquery将你的字符串序列化成键值对
+3.  JSON.stringify(obj)  毕竟真正在网络传输的其实是字符串，传个对象是不科学的。所以这个是将对象施工成可用的字符串
+
+### post请求前端后端写法（请求参数在请求头里面）
+
+后端写法
+
+```
+	@ResponseBody
+	@RequestMapping("/sendObject") 
+	public String sendObject(User user) throws JsonProcessingException{
+		System.out.println(user.getUsername());
+		ObjectMapper mapper = new ObjectMapper(); //转换器 
+		String json = mapper.writeValueAsString(user);
+		return "你发送的对象是"+json;
+	}
+```
+
+前端写法：
+
+```
+	$.ajax({
+  	  			type:"get",
+  	  			url:"xxxx",
+  	  			data : {
+  	  				   name:'John',
+  	  				   address.country:'zh_CN'
+  	  					},
+  	  ......
+```
+
+> ps 后端代码在项目里可以看到哦
