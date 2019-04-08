@@ -443,6 +443,69 @@ Spring data jpa拿来`Predicate`对象是塞在CriteriaQuery的where里面的。
 
 
 
+## 9.4 自实现字段转换器
+
+什么是字段转换器
+
+其实就是将Bean里面的字段转换成数据库内的字段
+
+一般情况下，只要你的Bean字段类型和数据库字段类型能匹配，一般是不需要转换、
+
+然而，某些情况，为了缩减字段数，以及减少复杂度（懒得再建一张关系表之类的。。）
+
+数据库的字段设计，就会略显复杂，比如说，数据库字段是varchar类型，但是实际存的是多个字段串，只不过中间用逗号隔开而已。
+
+那么，你在Bean的字段设计中，可能就会采取将这个字段映射为`Java`的`List<String>`类型
+
+但是问题来了，JPA怎么知道将这一串字符串，按逗号分隔，转成`List<String>`类型呢？
+
+怎么告诉他，用的就是字段转换器
+
+实现一个字段转换器大致如下
+
+```java
+@Converter
+public class StringToStringCollection implements AttributeConverter<List<String> ,String> {
+    //将bean的字段转成数据库字段
+    @Override
+    public String convertToDatabaseColumn(List<String> attribute) {
+        if (CollectionUtils.isEmpty(attribute)){
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String s : attribute) {
+            sb.append(s);
+            sb.append(",");
+        }
+        return sb.substring(0,sb.length()-1);
+    }
+	//将数据库字段转成bean字段
+    @Override
+    public List<String> convertToEntityAttribute(String dbData) {
+        String [] metas = dbData.split(",");
+        List<String> attribute = new ArrayList<>();
+        for (String meta : metas) {
+            attribute.add(meta);
+        }
+        return attribute;
+    }
+}
+```
+
+然后，将这个转换器加在`Convert`注解的`converter`属性上
+
+再把`Convert`注解加在需要自定义转换的字段上
+
+比如说
+
+```java
+  @Column(name = "role_ids")
+  @Convert(converter = StringToIntegerCollection.class)
+ private List<Integer> roleIds;
+```
+
+搞定咯
+
 
 
 # 第十节：Repository自定义实现
@@ -838,6 +901,56 @@ Hibernate误以为我们开了两个线程，一个线程先对这个对象执�
 但是在班级里面，却有两个class1的记录。
 
 这样就不符合一对多的前提了
+
+## 14.3 `Column 'xxxx' cannot be null`
+
+你看到这个BUG肯定想说了，什么吗，不就是某字段不能为空，但是你插入的是空的
+
+我一开始也是这么想的，但是程序内又没有执行任何insert语句
+
+好吧，其实update也会，前提是你update的时候，把那个字段置为空了。
+
+我操作的步骤是酱紫的
+
+1. 从数据库表读某一记录到内存中（使用JPA序列化成对象）
+
+2. 设置字段值（没有设置到xxxx字段）
+
+3. 保存
+
+   > 整个过程在事务内执行
+
+抛出异常的行数不在保存那里,其他也很正常，因为是在事务中，数据的flush行为是不定的。
+
+异常如标题所示
+
+这个BUG很有趣了，且听，从数据库表读出来的数据，`xxxx`字段肯定不是空，中途又没对该字段进行操作。
+
+最后基本是怎么查出来的，就怎么回去
+
+你说，这种情况下，还能出异常，这不是见了鬼，这是什么？
+
+。。。。。。当然没有鬼，最后发现原因是
+
+`xxxx`字段在JPA被映射为一个实体类，但是`xxxx`字段值在那个实体类的表中，又没有记录。
+
+那么，最后查询出来的xxx字段在bean的值是。。`null`  因为查不到嘛
+
+当然，那个`xxxx`字段在实体类中，可没有设置为`insert=false,update=false`
+
+自然，保存就挂了
+
+啥，你可能想问，这不科学，一般不是会报EntityNotFoundException么？
+
+还真没有，有时我也感觉很奇怪，可能原因在`xxxx`字段上加了
+
+`@NotFound(action= NotFoundAction.IGNORE)`注解吧
+
+
+
+
+
+
 
 
 
