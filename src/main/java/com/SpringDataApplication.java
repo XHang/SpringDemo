@@ -3,10 +3,7 @@ package com;
 import com.cxh.util.JSONUtil;
 import com.cxh.util.service.IncrService;
 import com.cxh.util.util.HighConcurrencyTool;
-import com.springdata.bean.Org;
-import com.springdata.bean.StatisticsVo;
-import com.springdata.bean.User;
-import com.springdata.bean.Vo;
+import com.springdata.bean.*;
 import com.springdata.dao.UserDao;
 import com.springdata.dao.UserPagingDao;
 import com.springdata.projection.UserDTO;
@@ -61,8 +58,16 @@ public class SpringDataApplication {
                                   IncrService service) {
         //lambda表达式，其实就是new了一个CommandLineRunner匿名对象
         return (args) -> {
-            queryMultiFieldUsingSpringJpa(repository);
+            showCharAndVarChar(manager);
+            //queryMultiFieldUsingSpringJpa(repository);
         };
+    }
+
+    private void showCharAndVarChar(EntityManager entityManager){
+        CharTest charTest = entityManager.find(CharTest.class,1);
+        System.out.println(String.format("得到的char是[%s]",charTest.getCharField()));
+        System.out.println(String.format("得到的varChar是[%s]",charTest.getVarCharField()));
+
     }
 
     /**
