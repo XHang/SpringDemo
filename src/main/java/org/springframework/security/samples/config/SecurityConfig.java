@@ -21,6 +21,7 @@ public class SecurityConfig {
 	//configureGlobal方法名可以随意取
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().withUser("user").password("password").roles("USER");
+        //创建一个虚拟的用户，用户名是user12。密码是password。用户组是USER
+        auth.inMemoryAuthentication().withUser("user12").password("password").roles("USER");
     }
 }
